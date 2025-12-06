@@ -1,7 +1,6 @@
 <script setup>
-import { onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import CesiumGlobe from './components/CesiumGlobe.vue'
-import CoordinateCard from './components/CoordinateCard.vue'
 import {
   Card,
   CardContent,
@@ -120,6 +119,10 @@ const iconByType = {
 
 const getIcon = (type) => iconByType[type] || Circle
 
+const activeTrajectory = computed(() =>
+  trajectories.value.find((t) => t.id === selectedTrajectoryId.value),
+)
+
 const handleCoordinateSelected = (coord) => {
   selectedCoordinate.value = coord
   coordinateOverlayVisible.value = true
@@ -173,8 +176,6 @@ onBeforeUnmount(() => {
 
       <div class="grid gap-6 lg:grid-cols-[380px_1fr] xl:grid-cols-[420px_1fr]">
         <div class="space-y-4">
-          <CoordinateCard :coordinate="selectedCoordinate" />
-
           <Card class="border border-slate-200/60 shadow-sm backdrop-blur-sm">
             <CardHeader>
               <CardTitle class="text-lg">Trajectories</CardTitle>
@@ -183,7 +184,7 @@ onBeforeUnmount(() => {
                 active path; selected is highlighted, others are muted.
               </CardDescription>
             </CardHeader>
-            <CardContent class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+            <CardContent class="space-y-3 h-[calc(100vh-260px)] overflow-y-auto pr-1">
               <div
                 v-for="trajectory in trajectories"
                 :key="trajectory.id"
@@ -245,6 +246,27 @@ onBeforeUnmount(() => {
             @coordinate-selected="handleCoordinateSelected"
           />
           <div
+            v-if="activeTrajectory"
+            class="pointer-events-none absolute right-6 top-6 flex flex-col gap-2 text-white"
+          >
+            <div
+              class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur"
+            >
+              <p class="text-[11px] uppercase tracking-[0.25em] text-white/70">
+                Active trajectory
+              </p>
+              <div class="mt-2 space-y-1">
+                <p class="text-lg font-semibold">
+                  {{ activeTrajectory.name }}
+                </p>
+                <p class="text-xs uppercase tracking-[0.2em] text-white/70">
+                  {{ activeTrajectory.type || 'unspecified' }}
+                  · {{ activeTrajectory.positions.length }} control points
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
             v-if="selectedCoordinate"
             class="pointer-events-none absolute left-6 top-6 flex flex-col gap-2 text-white"
             :class="coordinateOverlayVisible ? 'opacity-100' : 'opacity-0'"
@@ -275,14 +297,6 @@ onBeforeUnmount(() => {
                 </div>
               </div>
             </div>
-          </div>
-          <div
-            class="pointer-events-none absolute inset-x-6 bottom-6 rounded-2xl border border-white/10 bg-white/10 p-3 text-xs text-white backdrop-blur md:text-sm"
-          >
-            <p class="font-semibold">Interaction tips</p>
-            <p class="mt-1 text-[11px] uppercase tracking-[0.2em] text-white/70">
-              Click to sample · Drag to orbit · Scroll to zoom
-            </p>
           </div>
         </div>
       </div>
