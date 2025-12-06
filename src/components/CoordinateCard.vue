@@ -45,14 +45,6 @@ const formatNumber = (value) =>
             {{ formatNumber(coordinate.lon) }}°
           </p>
         </div>
-        <div class="space-y-1">
-          <p class="text-xs uppercase tracking-[0.2em] text-slate-500">
-            Altitude
-          </p>
-          <p class="font-semibold text-slate-900">
-            {{ formatNumber(coordinate.height) }} m
-          </p>
-        </div>
       </div>
       <p v-else class="text-sm text-slate-500">
         Nothing selected yet. Choose a point on the globe to see its

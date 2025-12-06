@@ -63,26 +63,31 @@ const setClickHandler = () => {
   handlerRef.value = new Cesium.ScreenSpaceEventHandler(
     viewerRef.value.scene.canvas,
   )
-  handlerRef.value.setInputAction(
-    (movement) => {
-      const scene = viewerRef.value.scene
-      const picked =
-        scene.pickPosition(movement.position) ||
-        viewerRef.value.camera.pickEllipsoid(
-          movement.position,
-          scene.globe.ellipsoid,
-        )
+  handlerRef.value.setInputAction((movement) => {
+    const scene = viewerRef.value.scene
+    const cartesian =
+      scene.pickPosition(movement.position) ||
+      viewerRef.value.camera.pickEllipsoid(
+        movement.position,
+        scene.globe.ellipsoid,
+      )
 
-      if (!picked) return
-      const cartographic = Cesium.Cartographic.fromCartesian(picked)
-      emit('coordinate-selected', {
-        lat: Cesium.Math.toDegrees(cartographic.latitude),
-        lon: Cesium.Math.toDegrees(cartographic.longitude),
-        height: cartographic.height,
-      })
-    },
-    Cesium.ScreenSpaceEventType.LEFT_CLICK,
-  )
+    if (!cartesian) return
+    const cartographic = Cesium.Cartographic.fromCartesian(cartesian)
+    emit('coordinate-selected', {
+      lat: Cesium.Math.toDegrees(cartographic.latitude),
+      lon: Cesium.Math.toDegrees(cartographic.longitude),
+    })
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
+}
+
+const getStyleFor = (id) => {
+  const isActive = id === props.selectedTrajectoryId
+  return {
+    color: isActive ? '#2563eb' : '#94a3b8',
+    width: isActive ? 4 : 2.5,
+    alpha: isActive ? 1 : 0.5,
+  }
 }
 
 const syncTrajectories = (list) => {
@@ -100,11 +105,10 @@ const syncTrajectories = (list) => {
     const positions = Cesium.Cartesian3.fromDegreesArrayHeights(
       item.positions.flatMap((p) => [p.lon, p.lat, p.height ?? 0]),
     )
-    const color = Cesium.Color.fromCssColorString(
-      item.color || '#2563eb',
-    ).withAlpha(0.9)
-    const material = new Cesium.ColorMaterialProperty(color)
-    const width = item.id === props.selectedTrajectoryId ? 4 : 2.5
+    const { color, width, alpha } = getStyleFor(item.id)
+    const material = new Cesium.ColorMaterialProperty(
+      Cesium.Color.fromCssColorString(color).withAlpha(alpha),
+    )
 
     if (trajectoryEntities.has(item.id)) {
       const entity = trajectoryEntities.get(item.id)
@@ -131,19 +135,11 @@ const highlightSelected = async (selectedId) => {
   if (!viewerRef.value) return
   trajectoryEntities.forEach((entity, id) => {
     if (!entity.polyline) return
-    const isActive = id === selectedId
-    entity.polyline.width = isActive ? 4 : 2.5
-    const current = entity.polyline.material
-    if (
-      current instanceof Cesium.ColorMaterialProperty &&
-      current.color instanceof Cesium.ConstantProperty
-    ) {
-      const baseColor = current.color.getValue(Cesium.JulianDate.now())
-      const adjusted = isActive
-        ? Cesium.Color.clone(baseColor).brighten(0.15, new Cesium.Color())
-        : Cesium.Color.clone(baseColor).withAlpha(0.9)
-      current.color = new Cesium.ConstantProperty(adjusted)
-    }
+    const { color, width, alpha } = getStyleFor(id)
+    entity.polyline.width = width
+    entity.polyline.material = new Cesium.ColorMaterialProperty(
+      Cesium.Color.fromCssColorString(color).withAlpha(alpha),
+    )
   })
 
   if (selectedId && trajectoryEntities.has(selectedId)) {
@@ -183,10 +179,5 @@ defineExpose({ resetView })
 <template>
   <div class="relative h-full w-full overflow-hidden rounded-2xl border">
     <div ref="containerRef" class="h-full w-full bg-slate-900/40" />
-    <div
-      class="pointer-events-none absolute left-4 top-4 z-10 rounded-full bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 shadow-sm backdrop-blur"
-    >
-      Click to sample coordinates
-    </div>
   </div>
 </template>

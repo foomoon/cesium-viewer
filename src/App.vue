@@ -1,8 +1,7 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import CesiumGlobe from './components/CesiumGlobe.vue'
 import CoordinateCard from './components/CoordinateCard.vue'
-import DataSelector from './components/DataSelector.vue'
 import {
   Card,
   CardContent,
@@ -11,12 +10,19 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import {
+  Plane,
+  Ship,
+  Satellite,
+  Navigation,
+  Circle,
+} from 'lucide-vue-next'
 
 const trajectories = ref([
   {
     id: 'atlantic-hop',
     name: 'Atlantic hop',
-    color: '#2563eb',
+    type: 'air',
     positions: [
       { lat: 40.6413, lon: -73.7781, height: 0 },
       { lat: 46.5, lon: -45, height: 11000 },
@@ -26,7 +32,7 @@ const trajectories = ref([
   {
     id: 'pacific-arc',
     name: 'Pacific arc',
-    color: '#db2777',
+    type: 'air',
     positions: [
       { lat: 37.6189, lon: -122.375, height: 0 },
       { lat: 45.5, lon: -160, height: 12500 },
@@ -37,7 +43,7 @@ const trajectories = ref([
   {
     id: 'andes-traverse',
     name: 'Andes traverse',
-    color: '#0ea5e9',
+    type: 'air',
     positions: [
       { lat: -33.4489, lon: -70.6693, height: 0 },
       { lat: -20.5, lon: -68.3, height: 9000 },
@@ -46,49 +52,108 @@ const trajectories = ref([
       { lat: 6.207, lon: -75.575, height: 800 },
     ],
   },
+  {
+    id: 'arctic-bridge',
+    name: 'Arctic bridge',
+    type: 'air',
+    positions: [
+      { lat: 64.1265, lon: -21.8174, height: 0 },
+      { lat: 75, lon: -30, height: 10500 },
+      { lat: 68.707, lon: 33.55, height: 0 },
+    ],
+  },
+  {
+    id: 'med-corridor',
+    name: 'Mediterranean corridor',
+    type: 'naval',
+    positions: [
+      { lat: 36.8987, lon: 30.7133, height: 0 },
+      { lat: 38.5, lon: 15, height: 9500 },
+      { lat: 41.3851, lon: 2.1734, height: 0 },
+    ],
+  },
+  {
+    id: 'sahara-link',
+    name: 'Sahara link',
+    type: 'ground',
+    positions: [
+      { lat: 31.6295, lon: -7.9811, height: 0 },
+      { lat: 20.5, lon: 13.0, height: 10500 },
+      { lat: 12.9716, lon: 77.5946, height: 0 },
+    ],
+  },
+  {
+    id: 'austral-loop',
+    name: 'Austral loop',
+    type: 'air',
+    positions: [
+      { lat: -37.8136, lon: 144.9631, height: 0 },
+      { lat: -46, lon: 160, height: 11000 },
+      { lat: -36.8485, lon: 174.7633, height: 0 },
+    ],
+  },
+  {
+    id: 'baltic-run',
+    name: 'Baltic run',
+    type: 'naval',
+    positions: [
+      { lat: 59.437, lon: 24.7536, height: 0 },
+      { lat: 57.7, lon: 19.0, height: 8000 },
+      { lat: 55.6761, lon: 12.5683, height: 0 },
+    ],
+  },
 ])
 
 const selectedTrajectoryId = ref(trajectories.value[0].id)
 const selectedCoordinate = ref(null)
 const globeRef = ref(null)
+const coordinateOverlayVisible = ref(false)
+let overlayTimer = null
 
-const datasetOptions = computed(() =>
-  trajectories.value.map((t) => ({
-    value: t.id,
-    label: t.name,
-  })),
-)
+const iconByType = {
+  air: Plane,
+  naval: Ship,
+  space: Satellite,
+  ground: Navigation,
+}
 
-const selectedTrajectory = computed(() =>
-  trajectories.value.find((t) => t.id === selectedTrajectoryId.value),
-)
+const getIcon = (type) => iconByType[type] || Circle
 
 const handleCoordinateSelected = (coord) => {
   selectedCoordinate.value = coord
-}
-
-const handleSelectChange = (value) => {
-  selectedTrajectoryId.value = value
+  coordinateOverlayVisible.value = true
+  if (overlayTimer) {
+    clearTimeout(overlayTimer)
+  }
+  overlayTimer = setTimeout(() => {
+    coordinateOverlayVisible.value = false
+  }, 4500)
 }
 
 const resetCamera = () => globeRef.value?.resetView?.()
+
+onBeforeUnmount(() => {
+  if (overlayTimer) {
+    clearTimeout(overlayTimer)
+  }
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-white/90">
-    <div class="mx-auto flex max-w-6xl flex-col gap-6 px-6 pb-10 pt-8 lg:px-10">
+    <div class="mx-auto flex w-full flex-col gap-6 px-6 pb-10 pt-8 lg:px-10">
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div class="space-y-2">
           <p class="text-xs uppercase tracking-[0.25em] text-slate-500">
             Cesium baseline
           </p>
           <h1 class="text-3xl font-semibold text-slate-900 lg:text-4xl">
-            Globe Explorer
+            Atlas Nexus
           </h1>
           <p class="max-w-2xl text-sm text-slate-600">
-            A clean Cesium canvas with no built-in controls. Click anywhere on
-            the globe to capture coordinates, toggle between tracks, and keep
-            multiple trajectories visible at once.
+            A focused Cesium canvas for engineers and mission teams. Click to
+            sample coordinates, toggle between tracks, and keep multiple
+            trajectories visible at once.
           </p>
         </div>
         <Button variant="outline" size="sm" @click="resetCamera">
@@ -96,54 +161,54 @@ const resetCamera = () => globeRef.value?.resetView?.()
         </Button>
       </header>
 
-      <div class="grid gap-6 lg:grid-cols-[360px_1fr]">
+      <div class="grid gap-6 lg:grid-cols-[380px_1fr] xl:grid-cols-[420px_1fr]">
         <div class="space-y-4">
           <CoordinateCard :coordinate="selectedCoordinate" />
 
           <Card class="border border-slate-200/60 shadow-sm backdrop-blur-sm">
             <CardHeader>
-              <CardTitle class="text-lg">Data source</CardTitle>
-              <CardDescription>
-                Pick a track from the list below. This dropdown will be wired to
-                your API later.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DataSelector
-                :options="datasetOptions"
-                :model-value="selectedTrajectoryId"
-                label="Active track"
-                description="Switch focus without hiding the other polylines."
-                @update:model-value="handleSelectChange"
-              />
-            </CardContent>
-          </Card>
-
-          <Card class="border border-slate-200/60 shadow-sm backdrop-blur-sm">
-            <CardHeader>
               <CardTitle class="text-lg">Trajectories</CardTitle>
               <CardDescription>
-                All paths are rendered on the globe. The active one is
-                emphasized.
+                All paths are rendered on the globe. Click a row to set the
+                active path; selected is highlighted, others are muted.
               </CardDescription>
             </CardHeader>
-            <CardContent class="space-y-3">
+            <CardContent class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
               <div
                 v-for="trajectory in trajectories"
                 :key="trajectory.id"
-                class="flex items-center justify-between rounded-xl border border-slate-100 bg-white/70 px-3 py-2"
+                role="button"
+                tabindex="0"
+                class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-slate-100 px-3 py-2 transition hover:border-slate-300 hover:bg-white"
+                :class="{
+                  'border-slate-300 bg-white shadow-sm':
+                    selectedTrajectoryId === trajectory.id,
+                }"
+                @click="selectedTrajectoryId = trajectory.id"
+                @keydown.enter.prevent="selectedTrajectoryId = trajectory.id"
+                @keydown.space.prevent="selectedTrajectoryId = trajectory.id"
               >
                 <div class="flex items-center gap-3">
+                  <div
+                    class="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600"
+                  >
+                    <component
+                      :is="getIcon(trajectory.type)"
+                      class="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                  </div>
                   <span
                     class="h-2 w-12 rounded-full"
-                    :style="{ backgroundColor: trajectory.color }"
+                    :style="{ backgroundColor: trajectory.color || '#2563eb' }"
                   />
                   <div>
                     <p class="text-sm font-semibold text-slate-900">
                       {{ trajectory.name }}
                     </p>
                     <p class="text-xs text-slate-500">
-                      {{ trajectory.positions.length }} control points
+                      {{ trajectory.positions.length }} control points ·
+                      {{ trajectory.type || 'other' }}
                     </p>
                   </div>
                 </div>
@@ -159,7 +224,7 @@ const resetCamera = () => globeRef.value?.resetView?.()
         </div>
 
         <div
-          class="relative h-[720px] overflow-hidden rounded-3xl border border-slate-200/70 bg-gradient-to-b from-slate-950 to-slate-900 shadow-2xl"
+          class="relative h-[calc(100vh-220px)] min-h-[640px] w-full overflow-hidden rounded-3xl border border-slate-200/70 bg-gradient-to-b from-slate-950 to-slate-900 shadow-2xl"
         >
           <CesiumGlobe
             ref="globeRef"
@@ -169,15 +234,44 @@ const resetCamera = () => globeRef.value?.resetView?.()
             @coordinate-selected="handleCoordinateSelected"
           />
           <div
-            class="pointer-events-none absolute inset-x-6 bottom-6 rounded-2xl border border-white/10 bg-white/10 p-4 text-sm text-white backdrop-blur"
+            v-if="selectedCoordinate"
+            class="pointer-events-none absolute left-6 top-6 flex flex-col gap-2 text-white"
+            :class="coordinateOverlayVisible ? 'opacity-100' : 'opacity-0'"
+            style="transition: opacity 400ms ease"
           >
-            <div class="flex flex-wrap items-center gap-3">
-              <div class="font-semibold">Interaction tips</div>
-              <div class="h-px flex-1 bg-white/20" />
-              <p class="text-xs uppercase tracking-[0.25em] text-white/70">
-                Click to sample · Drag to orbit · Scroll to zoom
+            <div
+              class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur"
+            >
+              <p class="text-[11px] uppercase tracking-[0.25em] text-white/70">
+                Selected position
               </p>
+              <div class="mt-2 grid grid-cols-2 gap-4 text-sm">
+                <div class="space-y-1">
+                  <p class="text-[11px] uppercase tracking-[0.2em] text-white/70">
+                    Latitude
+                  </p>
+                  <p class="text-lg font-semibold">
+                    {{ selectedCoordinate.lat?.toFixed(4) }}°
+                  </p>
+                </div>
+                <div class="space-y-1">
+                  <p class="text-[11px] uppercase tracking-[0.2em] text-white/70">
+                    Longitude
+                  </p>
+                  <p class="text-lg font-semibold">
+                    {{ selectedCoordinate.lon?.toFixed(4) }}°
+                  </p>
+                </div>
+              </div>
             </div>
+          </div>
+          <div
+            class="pointer-events-none absolute inset-x-6 bottom-6 rounded-2xl border border-white/10 bg-white/10 p-3 text-xs text-white backdrop-blur md:text-sm"
+          >
+            <p class="font-semibold">Interaction tips</p>
+            <p class="mt-1 text-[11px] uppercase tracking-[0.2em] text-white/70">
+              Click to sample · Drag to orbit · Scroll to zoom
+            </p>
           </div>
         </div>
       </div>
