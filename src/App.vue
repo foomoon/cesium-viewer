@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 import CesiumGlobe from './components/CesiumGlobe.vue'
 import CoordinateCard from './components/CoordinateCard.vue'
 import {
@@ -109,6 +109,7 @@ const selectedCoordinate = ref(null)
 const globeRef = ref(null)
 const coordinateOverlayVisible = ref(false)
 let overlayTimer = null
+const useOfflineMap = ref(false)
 
 const iconByType = {
   air: Plane,
@@ -131,6 +132,10 @@ const handleCoordinateSelected = (coord) => {
 }
 
 const resetCamera = () => globeRef.value?.resetView?.()
+
+const toggleMapMode = () => {
+  useOfflineMap.value = !useOfflineMap.value
+}
 
 onBeforeUnmount(() => {
   if (overlayTimer) {
@@ -156,9 +161,14 @@ onBeforeUnmount(() => {
             trajectories visible at once.
           </p>
         </div>
-        <Button variant="outline" size="sm" @click="resetCamera">
-          Reset view
-        </Button>
+        <div class="flex items-center gap-2">
+          <Button variant="outline" size="sm" @click="toggleMapMode">
+            Map: {{ useOfflineMap ? 'Offline' : 'Default' }}
+          </Button>
+          <Button variant="outline" size="sm" @click="resetCamera">
+            Reset view
+          </Button>
+        </div>
       </header>
 
       <div class="grid gap-6 lg:grid-cols-[380px_1fr] xl:grid-cols-[420px_1fr]">
@@ -231,6 +241,7 @@ onBeforeUnmount(() => {
             class="h-full"
             :trajectories="trajectories"
             :selected-trajectory-id="selectedTrajectoryId"
+            :use-offline-map="useOfflineMap"
             @coordinate-selected="handleCoordinateSelected"
           />
           <div

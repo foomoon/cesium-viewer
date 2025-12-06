@@ -11,6 +11,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  useOfflineMap: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['coordinate-selected'])
@@ -19,6 +23,29 @@ const containerRef = ref(null)
 const viewerRef = ref(null)
 const handlerRef = ref(null)
 const trajectoryEntities = new Map()
+const defaultBaseLayer = Cesium.ImageryLayer.fromProviderAsync(
+  Cesium.ArcGisMapServerImageryProvider.fromUrl(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+    {},
+  ),
+)
+const NaturalEarthIILayer = Cesium.ImageryLayer.fromProviderAsync(
+  new Cesium.TileMapServiceImageryProvider({
+    url: Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII'),
+    credit: '',
+  }),
+)
+
+const getImageryProvider = (isDefault) =>
+  isDefault ? NaturalEarthIILayer : defaultBaseLayer
+
+const applyImageryProvider = (offline) => {
+  if (!viewerRef.value) return
+  const layers = viewerRef.value.imageryLayers
+  const provider = getImageryProvider(offline)
+  // layers.removeAll()
+  layers.addImageryProvider(provider)
+}
 
 const createViewer = () => {
   if (!containerRef.value) return
@@ -36,7 +63,11 @@ const createViewer = () => {
     timeline: false,
     vrButton: false,
     navigationInstructionsInitiallyVisible: false,
+    // baseLayer: defaultBaseLayer,
+    baseLayer: getImageryProvider(false),
   })
+
+  console.log(Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII'))
 
   viewerRef.value.scene.globe.enableLighting = true
   viewerRef.value.scene.globe.showGroundAtmosphere = true
@@ -171,6 +202,11 @@ watch(
 watch(
   () => props.selectedTrajectoryId,
   (next) => highlightSelected(next),
+)
+
+watch(
+  () => props.useOfflineMap,
+  (next) => applyImageryProvider(next),
 )
 
 defineExpose({ resetView })
