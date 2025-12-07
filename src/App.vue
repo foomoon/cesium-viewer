@@ -351,6 +351,21 @@ const isDark = useStorage('atlas-theme', preferredDark.value)
 const toggleDark = () => {
   isDark.value = !isDark.value
 }
+const cardTone = computed(() =>
+  isDark.value
+    ? 'border border-slate-600 bg-slate-900/80 text-slate-100'
+    : 'border border-slate-200/60 bg-white/70 text-slate-900',
+)
+const listTone = computed(() =>
+  isDark.value
+    ? 'border border-slate-700 bg-slate-900/70 text-slate-100 hover:border-slate-500 hover:bg-slate-900'
+    : 'border border-slate-100 text-slate-900 hover:border-slate-300 hover:bg-white',
+)
+const activeTone = computed(() =>
+  isDark.value
+    ? 'border border-slate-400 bg-slate-800 shadow-sm text-slate-50'
+    : 'border border-slate-300 bg-white shadow-sm text-slate-900',
+)
 
 onMounted(() => {
   document.documentElement.classList.toggle('dark', isDark.value)
@@ -419,7 +434,10 @@ onBeforeUnmount(() => {
           <p class="text-xs uppercase tracking-[0.25em] text-slate-500">
             Cesium baseline
           </p>
-          <h1 class="text-3xl font-semibold text-slate-900 lg:text-4xl">
+          <h1
+            class="text-3xl font-semibold lg:text-4xl"
+            :class="isDark ? 'text-slate-50' : 'text-slate-900'"
+          >
             Atlas Nexus
           </h1>
           <p class="max-w-2xl text-sm text-slate-600">
@@ -443,7 +461,7 @@ onBeforeUnmount(() => {
 
       <div class="grid gap-6 lg:grid-cols-[380px_1fr] xl:grid-cols-[420px_1fr]">
         <div class="space-y-4">
-          <Card class="border border-slate-200/60 shadow-sm backdrop-blur-sm">
+          <Card :class="[cardTone, 'shadow-sm backdrop-blur-sm']">
             <CardHeader>
               <CardTitle class="text-lg">Trajectories</CardTitle>
               <CardDescription>
@@ -458,11 +476,11 @@ onBeforeUnmount(() => {
                 :key="trajectory.id"
                 role="button"
                 tabindex="0"
-                class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-slate-100 px-3 py-2 transition hover:border-slate-300 hover:bg-white"
-                :class="{
-                  'border-slate-300 bg-white shadow-sm':
-                    selectedTrajectoryId === trajectory.id,
-                }"
+                class="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-2 transition"
+                :class="[
+                  listTone,
+                  selectedTrajectoryId === trajectory.id ? activeTone : '',
+                ]"
                 @click="selectedTrajectoryId = trajectory.id"
                 @keydown.enter.prevent="selectedTrajectoryId = trajectory.id"
                 @keydown.space.prevent="selectedTrajectoryId = trajectory.id"
@@ -482,7 +500,10 @@ onBeforeUnmount(() => {
                     :style="{ backgroundColor: trajectory.color || '#2563eb' }"
                   />
                   <div>
-                    <p class="text-sm font-semibold text-slate-900">
+                    <p
+                      class="text-sm font-semibold"
+                      :class="isDark ? 'text-slate-100' : 'text-slate-900'"
+                    >
                       {{ trajectory.name }}
                     </p>
                     <p class="text-xs text-slate-500">
@@ -522,8 +543,8 @@ onBeforeUnmount(() => {
           class="relative h-[calc(100vh-220px)] min-h-[640px] w-full overflow-hidden rounded-3xl border bg-gradient-to-b shadow-2xl"
           :class="
             isDark
-              ? 'border-slate-800 from-slate-950 to-black'
-              : 'border-slate-200/70 from-slate-950 to-slate-900'
+              ? 'border-slate-800 from-slate-950 to-slate-900'
+              : 'border-slate-200/70 from-slate-900 to-slate-800'
           "
         >
           <CesiumGlobe
