@@ -351,6 +351,26 @@ const isDark = useStorage('atlas-theme', preferredDark.value)
 const toggleDark = () => {
   isDark.value = !isDark.value
 }
+const toRad = (deg) => (deg * Math.PI) / 180
+const groundRangeKm = (trajectory) => {
+  if (!trajectory || !trajectory.positions?.length) return 0
+  let total = 0
+  for (let i = 1; i < trajectory.positions.length; i += 1) {
+    const prev = trajectory.positions[i - 1]
+    const curr = trajectory.positions[i]
+    const lat1 = toRad(prev.lat)
+    const lat2 = toRad(curr.lat)
+    const dLat = lat2 - lat1
+    const dLon = toRad(curr.lon - prev.lon)
+    const a =
+      Math.sin(dLat / 2) ** 2
+      + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    const earthRadiusKm = 6371
+    total += earthRadiusKm * c
+  }
+  return total
+}
 const cardTone = computed(() =>
   isDark.value
     ? 'border border-neutral-700 bg-neutral-900/80 text-neutral-100'
@@ -461,7 +481,10 @@ onBeforeUnmount(() => {
 
       <div class="grid gap-6 lg:grid-cols-[380px_1fr] xl:grid-cols-[420px_1fr]">
         <div class="space-y-4">
-          <Card :class="[cardTone, 'shadow-sm backdrop-blur-sm']">
+          <Card
+            :class="[cardTone, 'shadow-sm backdrop-blur-sm']"
+            class="h-[calc(100vh-220px)] min-h-[640px] flex flex-col"
+          >
             <CardHeader>
               <CardTitle class="text-lg">Trajectories</CardTitle>
               <CardDescription>
@@ -470,7 +493,7 @@ onBeforeUnmount(() => {
                 · ground: {{ typeCounts.ground || 0 }} · other: {{ typeCounts.other || 0 }}
               </CardDescription>
             </CardHeader>
-            <CardContent class="space-y-3 h-[calc(100vh-360px)] overflow-y-auto">
+            <CardContent class="space-y-3 flex-1 overflow-y-auto">
               <div
                 v-for="trajectory in trajectories"
                 :key="trajectory.id"
@@ -576,7 +599,8 @@ onBeforeUnmount(() => {
                 </p>
                 <p class="text-xs uppercase tracking-[0.2em] text-white/70">
                   {{ activeTrajectory.type || 'unspecified' }}
-                  · {{ activeTrajectory.positions.length }} control points
+                  · {{ waypointCount(activeTrajectory) }} waypoints
+                  · {{ groundRangeKm(activeTrajectory).toFixed(1) }} km
                 </p>
               </div>
             </div>
