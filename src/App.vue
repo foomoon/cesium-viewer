@@ -101,6 +101,207 @@ const trajectories = ref([
       { lat: 55.6761, lon: 12.5683, height: 0, marker: 'end' },
     ],
   },
+  {
+    id: 'polar-sweep',
+    name: 'Polar sweep',
+    type: 'air',
+    positions: [
+      { lat: 64.2008, lon: -149.4937, height: 0, marker: 'start' },
+      { lat: 70.0, lon: -50.0, height: 11000, marker: 'waypoint' },
+      { lat: 78.2232, lon: 15.6469, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'southern-arc',
+    name: 'Southern arc',
+    type: 'air',
+    positions: [
+      { lat: -12.4634, lon: 130.8456, height: 0, marker: 'start' },
+      { lat: -25.0, lon: 140.0, height: 10500, marker: 'waypoint' },
+      { lat: -33.8688, lon: 151.2093, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'andean-ridge',
+    name: 'Andean ridge',
+    type: 'ground',
+    positions: [
+      { lat: -20.1619, lon: -70.1322, height: 0, marker: 'start' },
+      { lat: -15.5, lon: -71.0, height: 7500, marker: 'waypoint' },
+      { lat: -12.0464, lon: -77.0428, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'balkan-bridge',
+    name: 'Balkan bridge',
+    type: 'air',
+    positions: [
+      { lat: 45.815, lon: 15.9819, height: 0, marker: 'start' },
+      { lat: 43.8563, lon: 18.4131, height: 9000, marker: 'waypoint' },
+      { lat: 41.9973, lon: 21.428, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'caribbean-thread',
+    name: 'Caribbean thread',
+    type: 'naval',
+    positions: [
+      { lat: 18.4655, lon: -66.1057, height: 0, marker: 'start' },
+      { lat: 16.3064, lon: -61.084, height: 0, marker: 'waypoint' },
+      { lat: 14.6415, lon: -61.0242, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'north-sea-loop',
+    name: 'North Sea loop',
+    type: 'naval',
+    positions: [
+      { lat: 53.4808, lon: -2.2426, height: 0, marker: 'start' },
+      { lat: 55.95, lon: 3.0, height: 0, marker: 'waypoint' },
+      { lat: 57.7089, lon: 11.9746, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'steppe-corridor',
+    name: 'Steppe corridor',
+    type: 'ground',
+    positions: [
+      { lat: 50.4501, lon: 30.5234, height: 0, marker: 'start' },
+      { lat: 48.708, lon: 44.513, height: 0, marker: 'waypoint' },
+      { lat: 43.2389, lon: 76.8897, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'sundarbans-sprint',
+    name: 'Sundarbans sprint',
+    type: 'ground',
+    positions: [
+      { lat: 22.5726, lon: 88.3639, height: 0, marker: 'start' },
+      { lat: 21.5, lon: 90.0, height: 0, marker: 'waypoint' },
+      { lat: 23.8103, lon: 90.4125, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'island-chain',
+    name: 'Island chain',
+    type: 'air',
+    positions: [
+      { lat: 25.7617, lon: -80.1918, height: 0, marker: 'start' },
+      { lat: 19.8968, lon: -155.5828, height: 11500, marker: 'waypoint' },
+      { lat: 21.3069, lon: -157.8583, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'saharan-band',
+    name: 'Saharan band',
+    type: 'air',
+    positions: [
+      { lat: 14.7167, lon: -17.4677, height: 0, marker: 'start' },
+      { lat: 19.0, lon: 13.0, height: 11500, marker: 'waypoint' },
+      { lat: 30.0444, lon: 31.2357, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'black-sea-arc',
+    name: 'Black Sea arc',
+    type: 'naval',
+    positions: [
+      { lat: 41.0082, lon: 28.9784, height: 0, marker: 'start' },
+      { lat: 42.6983, lon: 27.2167, height: 0, marker: 'waypoint' },
+      { lat: 44.4328, lon: 26.1043, height: 0, marker: 'waypoint' },
+      { lat: 45.4642, lon: 28.777, height: 10000, marker: 'end' },
+    ],
+  },
+  {
+    id: 'pacific-hinge',
+    name: 'Pacific hinge',
+    type: 'air',
+    positions: [
+      { lat: 47.6062, lon: -122.3321, height: 0, marker: 'start' },
+      { lat: 55.0, lon: 170.0, height: 12000, marker: 'waypoint' },
+      { lat: 35.6762, lon: 139.6503, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'andes-to-atlantic',
+    name: 'Andes to Atlantic',
+    type: 'ground',
+    positions: [
+      { lat: -34.6037, lon: -58.3816, height: 0, marker: 'start' },
+      { lat: -27.0, lon: -48.6, height: 0, marker: 'waypoint' },
+      { lat: -22.9068, lon: -43.1729, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'pan-arabian',
+    name: 'Pan Arabian',
+    type: 'ground',
+    positions: [
+      { lat: 24.7136, lon: 46.6753, height: 0, marker: 'start' },
+      { lat: 29.3759, lon: 47.9774, height: 0, marker: 'waypoint' },
+      { lat: 33.3152, lon: 44.3661, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'nordic-dash',
+    name: 'Nordic dash',
+    type: 'air',
+    positions: [
+      { lat: 60.1699, lon: 24.9384, height: 0, marker: 'start' },
+      { lat: 64.1265, lon: -21.8174, height: 10500, marker: 'waypoint' },
+      { lat: 59.9139, lon: 10.7522, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'baltic-thread',
+    name: 'Baltic thread',
+    type: 'naval',
+    positions: [
+      { lat: 59.3293, lon: 18.0686, height: 0, marker: 'start' },
+      { lat: 58.3776, lon: 24.7474, height: 0, marker: 'waypoint' },
+      { lat: 59.9133, lon: 10.739, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'red-sea-run',
+    name: 'Red Sea run',
+    type: 'naval',
+    positions: [
+      { lat: 29.5521, lon: 34.9519, height: 0, marker: 'start' },
+      { lat: 25.4, lon: 36.0, height: 0, marker: 'waypoint' },
+      { lat: 21.4858, lon: 39.1925, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'great-plains-pass',
+    name: 'Great Plains pass',
+    type: 'ground',
+    positions: [
+      { lat: 39.7392, lon: -104.9903, height: 0, marker: 'start' },
+      { lat: 41.2572, lon: -95.9951, height: 0, marker: 'waypoint' },
+      { lat: 44.9778, lon: -93.265, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'maritime-seam',
+    name: 'Maritime seam',
+    type: 'naval',
+    positions: [
+      { lat: 1.3521, lon: 103.8198, height: 0, marker: 'start' },
+      { lat: 5.0, lon: 112.0, height: 0, marker: 'waypoint' },
+      { lat: 7.9519, lon: 98.3381, height: 0, marker: 'end' },
+    ],
+  },
+  {
+    id: 'pacific-ridge',
+    name: 'Pacific ridge',
+    type: 'air',
+    positions: [
+      { lat: 34.0522, lon: -118.2437, height: 0, marker: 'start' },
+      { lat: 45.0, lon: -150.0, height: 12500, marker: 'waypoint' },
+      { lat: 35.6895, lon: 139.6917, height: 0, marker: 'end' },
+    ],
+  },
 ])
 
 const selectedTrajectoryId = ref(trajectories.value[0].id)
