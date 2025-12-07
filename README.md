@@ -40,7 +40,19 @@ npm run dev
 {
   "id": "unique-id",
   "name": "Readable name",
-  "type": "air | naval | ground | other",
+  "type": "space | air | ground | sea | other",
+  "velocityProfile": "subsonic | supersonic | hypersonic | suborbital | other",
+  "maneuverability": "waypoint | no-waypoint | other",
+  "convergence": "nominal | lofted | depressed | other",
+  "constraints": {
+    "altitude": {
+      "launch": { "min": 0, "max": 1000 },
+      "aim": { "min": 0, "max": 12000 },
+      "waypoint": { "min": 0, "max": 12000 }
+    },
+    "range": { "min": 0, "max": 5000 },
+    "waypoints": { "min": 0, "max": 10 }
+  },
   "positions": [
     { "lat": 0, "lon": 0, "height": 0 },
     { "lat": 1, "lon": 1, "height": 1000 }
@@ -53,6 +65,8 @@ npm run dev
 
 - `positions` define the full path.
 - `waypoints` (optional) mark intermediate points to render markers; start/end are derived from the first/last positions.
+- `type`, `velocityProfile`, `maneuverability`, `convergence` default to `other` if omitted.
+- `constraints` (optional) captures altitude/range/waypoint bounds; you can omit or supply only the fields you care about.
 
 ## Notes
 

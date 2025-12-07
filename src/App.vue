@@ -362,21 +362,20 @@ const iconByType = {
 
 const getIcon = (type) => iconByType[type] || Circle
 const waypointCount = (trajectory) =>
-  Array.isArray(trajectory.waypoints) ? trajectory.waypoints.length : 0
+  Array.isArray(trajectory?.waypoints) ? trajectory.waypoints.length : 0
 
-const activeTrajectory = computed(() =>
-  trajectories.value.find((t) => t.id === selectedTrajectoryId.value),
-)
 const decoratedTrajectories = computed(() =>
-  trajectories.value.map((t) => ({
-    ...t,
-    positions: positionsWithMarkers(t),
-  })),
+  trajectories.value.map(applyTrajectoryDefaults),
+)
+const activeTrajectory = computed(() =>
+  decoratedTrajectories.value.find((t) => t.id === selectedTrajectoryId.value) ||
+  decoratedTrajectories.value[0] ||
+  null,
 )
 const totalTrajectories = computed(() => trajectories.value.length)
 const totalWaypoints = computed(() =>
-  trajectories.value.reduce(
-    (sum, t) => sum + t.positions.filter((p) => p.marker === 'waypoint').length,
+  decoratedTrajectories.value.reduce(
+    (sum, t) => sum + waypointCount(t),
     0,
   ),
 )
@@ -394,6 +393,20 @@ const preferredDark = usePreferredDark()
 const isDark = useStorage('atlas-theme', preferredDark.value)
 const toggleDark = () => {
   isDark.value = !isDark.value
+}
+const inferVelocity = (type) => {
+  switch (type) {
+    case 'space':
+      return 'suborbital'
+    case 'air':
+      return 'supersonic'
+    case 'ground':
+    case 'sea':
+    case 'naval':
+      return 'subsonic'
+    default:
+      return 'other'
+  }
 }
 const positionsWithMarkers = (trajectory) => {
   const positions = trajectory.positions.map((p) => ({ ...p }))
@@ -419,6 +432,30 @@ const positionsWithMarkers = (trajectory) => {
   }
   return positions
 }
+
+const applyTrajectoryDefaults = (t) => {
+  const type = t.type || 'other'
+  const normalizedPositions =
+    t.positions?.map((p) => ({
+      ...p,
+      height: p.height ?? p.altitude ?? 0,
+    })) || []
+  const normalizedWaypoints =
+    t.waypoints?.map((p) => ({
+      ...p,
+      height: p.height ?? p.altitude ?? 0,
+    })) || []
+  return {
+    ...t,
+    type,
+    velocityProfile: t.velocityProfile || inferVelocity(type),
+    maneuverability:
+      t.maneuverability || (t.waypoints?.length ? 'waypoint' : 'no-waypoint'),
+    convergence: t.convergence || 'nominal',
+    positions: positionsWithMarkers({ ...t, positions: normalizedPositions, waypoints: normalizedWaypoints }),
+    waypoints: normalizedWaypoints,
+  }
+}
 const toRad = (deg) => (deg * Math.PI) / 180
 const groundRangeKm = (trajectory) => {
   if (!trajectory || !trajectory.positions?.length) return 0
@@ -442,9 +479,15 @@ const groundRangeKm = (trajectory) => {
 const maxApogee = (trajectory) => {
   if (!trajectory || !trajectory.positions?.length) return 0
   return trajectory.positions.reduce(
-    (max, p) => Math.max(max, p.altitude ?? 0),
+    (max, p) => Math.max(max, p.height ?? p.altitude ?? 0),
     0,
   )
+}
+const formatLabel = (val) => {
+  const str = val || 'other'
+  return str
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (m) => m.toUpperCase())
 }
 const cardTone = computed(() =>
   isDark.value
@@ -574,7 +617,7 @@ onBeforeUnmount(() => {
             </CardHeader>
             <CardContent class="space-y-3 flex-1 overflow-y-auto">
               <div
-                v-for="trajectory in trajectories"
+                v-for="trajectory in decoratedTrajectories"
                 :key="trajectory.id"
                 role="button"
                 tabindex="0"
@@ -680,7 +723,7 @@ onBeforeUnmount(() => {
                   <div class="space-y-0.5">
                     <p class="text-[11px]">Type</p>
                     <p class="text-sm font-semibold text-white">
-                      {{ activeTrajectory.type || 'unspecified' }}
+                      {{ formatLabel(activeTrajectory.type || 'unspecified') }}
                     </p>
                   </div>
                   <div class="space-y-0.5">
@@ -699,6 +742,24 @@ onBeforeUnmount(() => {
                     <p class="text-[11px]">Max apogee</p>
                     <p class="text-sm font-semibold text-white">
                       {{ Math.round(maxApogee(activeTrajectory)) }} m
+                    </p>
+                  </div>
+                  <div class="space-y-0.5">
+                    <p class="text-[11px]">Velocity</p>
+                    <p class="text-sm font-semibold text-white">
+                      {{ formatLabel(activeTrajectory.velocityProfile) }}
+                    </p>
+                  </div>
+                  <div class="space-y-0.5">
+                    <p class="text-[11px]">Maneuver</p>
+                    <p class="text-sm font-semibold text-white">
+                      {{ formatLabel(activeTrajectory.maneuverability) }}
+                    </p>
+                  </div>
+                  <div class="space-y-0.5">
+                    <p class="text-[11px]">Convergence</p>
+                    <p class="text-sm font-semibold text-white">
+                      {{ formatLabel(activeTrajectory.convergence) }}
                     </p>
                   </div>
                 </div>

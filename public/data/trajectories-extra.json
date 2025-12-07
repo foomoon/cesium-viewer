@@ -3,88 +3,112 @@
     "id": "caspian-circuit",
     "name": "Caspian circuit",
     "type": "naval",
+    "velocityProfile": "subsonic",
+    "maneuverability": "waypoint",
+    "convergence": "nominal",
     "positions": [
-      { "lat": 40.4093, "lon": 49.8671, "altitude": 0 },
-      { "lat": 41.0, "lon": 52.0, "altitude": 0 },
-      { "lat": 39.65, "lon": 53.0, "altitude": 0 }
+      { "lat": 40.4093, "lon": 49.8671, "height": 0 },
+      { "lat": 41.0, "lon": 52.0, "height": 0 },
+      { "lat": 39.65, "lon": 53.0, "height": 0 }
     ],
-    "waypoints": [{ "lat": 41.0, "lon": 52.0, "altitude": 0 }]
+    "waypoints": [{ "lat": 41.0, "lon": 52.0, "height": 0 }]
   },
   {
     "id": "iberian-link",
     "name": "Iberian link",
     "type": "ground",
+    "velocityProfile": "subsonic",
+    "maneuverability": "waypoint",
+    "convergence": "nominal",
     "positions": [
-      { "lat": 40.4168, "lon": -3.7038, "altitude": 0 },
-      { "lat": 41.3851, "lon": 2.1734, "altitude": 0 },
-      { "lat": 43.263, "lon": -2.935, "altitude": 0 }
+      { "lat": 40.4168, "lon": -3.7038, "height": 0 },
+      { "lat": 41.3851, "lon": 2.1734, "height": 0 },
+      { "lat": 43.263, "lon": -2.935, "height": 0 }
     ],
-    "waypoints": [{ "lat": 41.3851, "lon": 2.1734, "altitude": 0 }]
+    "waypoints": [{ "lat": 41.3851, "lon": 2.1734, "height": 0 }]
   },
   {
     "id": "austral-hinge",
     "name": "Austral hinge",
     "type": "air",
+    "velocityProfile": "supersonic",
+    "maneuverability": "waypoint",
+    "convergence": "nominal",
     "positions": [
-      { "lat": -15.7797, "lon": -47.9297, "altitude": 0 },
-      { "lat": -25.2744, "lon": 133.7751, "altitude": 11500 },
-      { "lat": -36.8485, "lon": 174.7633, "altitude": 0 }
+      { "lat": -15.7797, "lon": -47.9297, "height": 0 },
+      { "lat": -25.2744, "lon": 133.7751, "height": 11500 },
+      { "lat": -36.8485, "lon": 174.7633, "height": 0 }
     ],
-    "waypoints": [{ "lat": -25.2744, "lon": 133.7751, "altitude": 11500 }]
+    "waypoints": [{ "lat": -25.2744, "lon": 133.7751, "height": 11500 }]
   },
   {
     "id": "baltic-to-arctic",
     "name": "Baltic to Arctic",
     "type": "air",
+    "velocityProfile": "supersonic",
+    "maneuverability": "waypoint",
+    "convergence": "nominal",
     "positions": [
-      { "lat": 59.437, "lon": 24.7536, "altitude": 0 },
-      { "lat": 66.0, "lon": 24.0, "altitude": 11000 },
-      { "lat": 69.6492, "lon": 18.9553, "altitude": 0 }
+      { "lat": 59.437, "lon": 24.7536, "height": 0 },
+      { "lat": 66.0, "lon": 24.0, "height": 11000 },
+      { "lat": 69.6492, "lon": 18.9553, "height": 0 }
     ],
-    "waypoints": [{ "lat": 66.0, "lon": 24.0, "altitude": 11000 }]
+    "waypoints": [{ "lat": 66.0, "lon": 24.0, "height": 11000 }]
   },
   {
     "id": "malacca-run",
     "name": "Malacca run",
     "type": "naval",
+    "velocityProfile": "subsonic",
+    "maneuverability": "waypoint",
+    "convergence": "nominal",
     "positions": [
-      { "lat": 1.3521, "lon": 103.8198, "altitude": 0 },
-      { "lat": 4.0, "lon": 100.0, "altitude": 0 },
-      { "lat": 6.0, "lon": 98.0, "altitude": 0 }
+      { "lat": 1.3521, "lon": 103.8198, "height": 0 },
+      { "lat": 4.0, "lon": 100.0, "height": 0 },
+      { "lat": 6.0, "lon": 98.0, "height": 0 }
     ],
-    "waypoints": [{ "lat": 4.0, "lon": 100.0, "altitude": 0 }]
+    "waypoints": [{ "lat": 4.0, "lon": 100.0, "height": 0 }]
   },
   {
     "id": "andes-plateau",
     "name": "Andes plateau",
     "type": "ground",
+    "velocityProfile": "subsonic",
+    "maneuverability": "waypoint",
+    "convergence": "nominal",
     "positions": [
-      { "lat": -16.409, "lon": -71.5375, "altitude": 0 },
-      { "lat": -14.235, "lon": -70.0, "altitude": 4200 },
-      { "lat": -12.0464, "lon": -77.0428, "altitude": 0 }
+      { "lat": -16.409, "lon": -71.5375, "height": 0 },
+      { "lat": -14.235, "lon": -70.0, "height": 4200 },
+      { "lat": -12.0464, "lon": -77.0428, "height": 0 }
     ],
-    "waypoints": [{ "lat": -14.235, "lon": -70.0, "altitude": 4200 }]
+    "waypoints": [{ "lat": -14.235, "lon": -70.0, "height": 4200 }]
   },
   {
     "id": "atlantic-cable",
     "name": "Atlantic cable",
     "type": "naval",
+    "velocityProfile": "subsonic",
+    "maneuverability": "waypoint",
+    "convergence": "nominal",
     "positions": [
-      { "lat": 51.5074, "lon": -0.1278, "altitude": 0 },
-      { "lat": 45.0, "lon": -30.0, "altitude": 0 },
-      { "lat": 40.7128, "lon": -74.006, "altitude": 0 }
+      { "lat": 51.5074, "lon": -0.1278, "height": 0 },
+      { "lat": 45.0, "lon": -30.0, "height": 0 },
+      { "lat": 40.7128, "lon": -74.006, "height": 0 }
     ],
-    "waypoints": [{ "lat": 45.0, "lon": -30.0, "altitude": 0 }]
+    "waypoints": [{ "lat": 45.0, "lon": -30.0, "height": 0 }]
   },
   {
     "id": "himalayan-pass",
     "name": "Himalayan pass",
     "type": "air",
+    "velocityProfile": "supersonic",
+    "maneuverability": "waypoint",
+    "convergence": "nominal",
     "positions": [
-      { "lat": 27.7172, "lon": 85.324, "altitude": 0 },
-      { "lat": 29.0, "lon": 90.0, "altitude": 11500 },
-      { "lat": 31.2304, "lon": 121.4737, "altitude": 0 }
+      { "lat": 27.7172, "lon": 85.324, "height": 0 },
+      { "lat": 29.0, "lon": 90.0, "height": 11500 },
+      { "lat": 31.2304, "lon": 121.4737, "height": 0 }
     ],
-    "waypoints": [{ "lat": 29.0, "lon": 90.0, "altitude": 11500 }]
+    "waypoints": [{ "lat": 29.0, "lon": 90.0, "height": 11500 }]
   }
 ]
