@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Cesium cached/offline assets
-# public/cesium/**
+public/cesium/**

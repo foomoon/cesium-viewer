@@ -24,7 +24,15 @@ npm run dev
 - `npm run dev` – start Vite dev server
 - `npm run build` – production build
 - `npm run preview` – preview the production build
-- `npm run copy:naturalearth2` – copy Cesium Natural Earth II assets into `public/cesium`
+- `npm run copy:naturalearth2` – copy Cesium Natural Earth II assets into `public/cesium` (run once after install if you want offline Natural Earth II)
+
+To enable Natural Earth II offline:
+
+```bash
+npm install
+npm run copy:naturalearth2
+npm run dev
+```
 
 ## Trajectory data format
 
