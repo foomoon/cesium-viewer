@@ -438,12 +438,14 @@ const applyTrajectoryDefaults = (t) => {
   const normalizedPositions =
     t.positions?.map((p) => ({
       ...p,
-      height: p.height ?? p.altitude ?? 0,
+      altitude: p.altitude ?? p.height ?? 0,
+      height: p.altitude ?? p.height ?? 0,
     })) || []
   const normalizedWaypoints =
     t.waypoints?.map((p) => ({
       ...p,
-      height: p.height ?? p.altitude ?? 0,
+      altitude: p.altitude ?? p.height ?? 0,
+      height: p.altitude ?? p.height ?? 0,
     })) || []
   return {
     ...t,
@@ -479,7 +481,7 @@ const groundRangeKm = (trajectory) => {
 const maxApogee = (trajectory) => {
   if (!trajectory || !trajectory.positions?.length) return 0
   return trajectory.positions.reduce(
-    (max, p) => Math.max(max, p.height ?? p.altitude ?? 0),
+    (max, p) => Math.max(max, p.altitude ?? p.height ?? 0),
     0,
   )
 }
