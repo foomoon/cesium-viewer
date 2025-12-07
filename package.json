@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "copy:naturalearth2": "mkdir -p public/cesium && cp -R node_modules/cesium/Build/Cesium/Assets/Textures/NaturalEarthII public/cesium/NaturalEarthII"
   },
   "dependencies": {
     "@vueuse/core": "^14.1.0",

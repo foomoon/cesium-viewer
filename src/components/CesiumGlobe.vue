@@ -23,6 +23,7 @@ const containerRef = ref(null)
 const viewerRef = ref(null)
 const handlerRef = ref(null)
 const trajectoryEntities = new Map()
+let selectedPointEntity = null
 const defaultBaseLayer = Cesium.ImageryLayer.fromProviderAsync(
   Cesium.ArcGisMapServerImageryProvider.fromUrl(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
@@ -105,11 +106,30 @@ const setClickHandler = () => {
 
     if (!cartesian) return
     const cartographic = Cesium.Cartographic.fromCartesian(cartesian)
+    addOrUpdateSelectedPoint(cartesian)
     emit('coordinate-selected', {
       lat: Cesium.Math.toDegrees(cartographic.latitude),
       lon: Cesium.Math.toDegrees(cartographic.longitude),
     })
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
+}
+
+const addOrUpdateSelectedPoint = (cartesianPosition) => {
+  if (!viewerRef.value) return
+  if (selectedPointEntity) {
+    selectedPointEntity.position = cartesianPosition
+    return
+  }
+  selectedPointEntity = viewerRef.value.entities.add({
+    position: cartesianPosition,
+    point: {
+      pixelSize: 10,
+      color: Cesium.Color.fromCssColorString('#2563eb').withAlpha(0.95),
+      outlineColor: Cesium.Color.WHITE.withAlpha(0.9),
+      outlineWidth: 2,
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+    },
+  })
 }
 
 const getStyleFor = (id) => {
@@ -188,6 +208,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   handlerRef.value?.destroy?.()
   if (viewerRef.value && !viewerRef.value.isDestroyed()) {
+    if (selectedPointEntity) {
+      viewerRef.value.entities.remove(selectedPointEntity)
+    }
     viewerRef.value.entities.removeAll()
     viewerRef.value.destroy()
   }

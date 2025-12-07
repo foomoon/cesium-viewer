@@ -184,7 +184,7 @@ onBeforeUnmount(() => {
                 active path; selected is highlighted, others are muted.
               </CardDescription>
             </CardHeader>
-            <CardContent class="space-y-3 h-[calc(100vh-260px)] overflow-y-auto pr-1">
+            <CardContent class="space-y-3 h-[calc(100vh-360px)] overflow-y-auto pr-1">
               <div
                 v-for="trajectory in trajectories"
                 :key="trajectory.id"
