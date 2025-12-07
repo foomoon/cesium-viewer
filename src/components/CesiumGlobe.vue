@@ -27,6 +27,7 @@ const trajectoryEntities = new Map();
 let selectedPointEntity = null;
 const markerEntities = new Map();
 const POINT_HEIGHT_OFFSET = 25;
+
 const defaultBaseLayer = //Cesium.ImageryLayer.fromProviderAsync(
   Cesium.ArcGisMapServerImageryProvider.fromUrl(
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
@@ -40,7 +41,14 @@ const NaturalEarthIILayer = //new Cesium.ImageryLayer(
     maximumLevel: 2, // Natural Earth II has a limited zoom level
   });
 
-console.log("NaturalEarthIILayer", NaturalEarthIILayer);
+
+const Sentinel2CloudlessLayer =
+  new Cesium.UrlTemplateImageryProvider({
+    url: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020/default/g/{z}/{x}/{y}.jpg',
+    credit: '© Sentinel-2 Cloudless by EOX'
+  });
+
+
 
 const getImageryLayer = (provider) => {
   return new Cesium.ImageryLayer.fromProviderAsync(provider);
@@ -165,7 +173,7 @@ const syncTrajectories = (list) => {
 
   list.forEach((item) => {
     const positions = Cesium.Cartesian3.fromDegreesArrayHeights(
-      item.positions.flatMap((p) => [p.lon, p.lat, p.height ?? 0])
+      item.positions.flatMap((p) => [p.lon, p.lat, p.altitude ?? 0])
     );
     const { color, width, alpha } = getStyleFor(item.id);
     const material = new Cesium.ColorMaterialProperty(
@@ -252,11 +260,11 @@ defineExpose({ resetView });
 
 const raiseCartesian = (cartesian, offsetMeters) => {
   const carto = Cesium.Cartographic.fromCartesian(cartesian);
-  carto.height = (carto.height || 0) + offsetMeters;
+  carto.altitude = (carto.altitude || 0) + offsetMeters;
   return Cesium.Cartesian3.fromRadians(
     carto.longitude,
     carto.latitude,
-    carto.height
+    carto.altitude
   );
 };
 
@@ -282,7 +290,7 @@ const setMarkersForSelected = () => {
     const cartesian = Cesium.Cartesian3.fromDegrees(
       p.lon,
       p.lat,
-      (p.height ?? 0) + markerStyle.heightOffset
+      (p.altitude ?? 0) + markerStyle.heightOffset
     );
     const marker = viewerRef.value.entities.add({
       position: cartesian,
@@ -321,7 +329,7 @@ const getMarkerStyle = (markerType) => {
         outlineWidth: 2,
         pixelSize: 10,
         heightOffset: 50,
-        label: "Start",
+        label: "Launch",
       };
     case "end":
       return {
@@ -330,7 +338,7 @@ const getMarkerStyle = (markerType) => {
         outlineWidth: 2,
         pixelSize: 10,
         heightOffset: 50,
-        label: "End",
+        label: "Aim",
       };
     case "waypoint":
     default:
