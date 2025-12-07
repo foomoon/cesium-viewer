@@ -487,7 +487,12 @@ onBeforeUnmount(() => {
               >
                 <div class="flex items-center gap-3">
                   <div
-                    class="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-600"
+                    class="flex h-9 w-9 items-center justify-center rounded-full"
+                    :class="
+                      isDark
+                        ? 'border border-slate-600 bg-slate-800 text-slate-100'
+                        : 'border border-slate-200 bg-white/80 text-slate-600'
+                    "
                   >
                     <component
                       :is="getIcon(trajectory.type)"
