@@ -1,5 +1,56 @@
-# Vue 3 + Vite
+# Atlas Nexus
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Clean Cesium + Vite/Vue viewer for exploring trajectories with a minimal HUD.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+![Atlas Nexus UI](docs/atlas-nexus-ui.png)
+
+## Features
+
+- Cesium globe with stripped-down controls and Natural Earth II/ArcGIS base layers
+- Click-to-sample coordinates with an on-globe marker and overlay
+- Trajectory highlighting with waypoint markers (start/end/waypoint) and summary stats
+- Dark/Light theme toggle with neutral, low-noise styling
+- Load additional trajectories from JSON (`public/data/trajectories-extra.json`)
+
+## Getting started
+
+```bash
+npm install
+npm run dev
+```
+
+## Useful scripts
+
+- `npm run dev` – start Vite dev server
+- `npm run build` – production build
+- `npm run preview` – preview the production build
+- `npm run copy:naturalearth2` – copy Cesium Natural Earth II assets into `public/cesium`
+
+## Trajectory data format
+
+```json
+{
+  "id": "unique-id",
+  "name": "Readable name",
+  "type": "air | naval | ground | other",
+  "positions": [
+    { "lat": 0, "lon": 0, "height": 0 },
+    { "lat": 1, "lon": 1, "height": 1000 }
+  ],
+  "waypoints": [
+    { "lat": 1, "lon": 1, "height": 1000 }
+  ]
+}
+```
+
+- `positions` define the full path.
+- `waypoints` (optional) mark intermediate points to render markers; start/end are derived from the first/last positions.
+
+## Notes
+
+- To swap the placeholder image, replace `docs/atlas-nexus-placeholder.png` with your screenshot and adjust the README reference.
+- Natural Earth II assets are loaded from `public/cesium/NaturalEarthII`; run the copy script if needed.
+
+## License
+
+MIT
