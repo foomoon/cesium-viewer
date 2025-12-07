@@ -353,17 +353,17 @@ const toggleDark = () => {
 }
 const cardTone = computed(() =>
   isDark.value
-    ? 'border border-slate-600 bg-slate-900/80 text-slate-100'
+    ? 'border border-neutral-700 bg-neutral-900/80 text-neutral-100'
     : 'border border-slate-200/60 bg-white/70 text-slate-900',
 )
 const listTone = computed(() =>
   isDark.value
-    ? 'border border-slate-700 bg-slate-900/70 text-slate-100 hover:border-slate-500 hover:bg-slate-900'
+    ? 'border border-neutral-700 bg-neutral-900/70 text-neutral-100 hover:border-neutral-500 hover:bg-neutral-900'
     : 'border border-slate-100 text-slate-900 hover:border-slate-300 hover:bg-white',
 )
 const activeTone = computed(() =>
   isDark.value
-    ? 'border border-slate-400 bg-slate-800 shadow-sm text-slate-50'
+    ? 'border border-neutral-500 bg-neutral-800 shadow-sm text-neutral-50'
     : 'border border-slate-300 bg-white shadow-sm text-slate-900',
 )
 
@@ -426,7 +426,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="min-h-screen"
-    :class="isDark ? 'bg-slate-900 text-slate-100' : 'bg-white/90 text-slate-900'"
+    :class="isDark ? 'bg-neutral-950 text-neutral-100' : 'bg-white/90 text-slate-900'"
   >
     <div class="mx-auto flex w-full flex-col gap-6 px-6 pb-10 pt-8 lg:px-10">
       <header class="flex flex-wrap items-center justify-between gap-4">
@@ -548,7 +548,7 @@ onBeforeUnmount(() => {
           class="relative h-[calc(100vh-220px)] min-h-[640px] w-full overflow-hidden rounded-3xl border bg-gradient-to-b shadow-2xl"
           :class="
             isDark
-              ? 'border-slate-800 from-slate-950 to-slate-900'
+              ? 'border-slate-800 from-slate-950 to-slate-950'
               : 'border-slate-200/70 from-slate-900 to-slate-800'
           "
         >
