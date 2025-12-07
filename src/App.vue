@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { usePreferredDark, useStorage } from '@vueuse/core'
 import CesiumGlobe from './components/CesiumGlobe.vue'
 import {
   Card,
@@ -310,6 +311,9 @@ const globeRef = ref(null)
 const coordinateOverlayVisible = ref(false)
 let overlayTimer = null
 const useOfflineMap = ref(false)
+const isLoadingExtras = ref(false)
+const extrasLoaded = ref(false)
+const loadError = ref('')
 
 const iconByType = {
   air: Plane,
@@ -324,6 +328,40 @@ const waypointCount = (trajectory) =>
 
 const activeTrajectory = computed(() =>
   trajectories.value.find((t) => t.id === selectedTrajectoryId.value),
+)
+const totalTrajectories = computed(() => trajectories.value.length)
+const totalWaypoints = computed(() =>
+  trajectories.value.reduce(
+    (sum, t) => sum + t.positions.filter((p) => p.marker === 'waypoint').length,
+    0,
+  ),
+)
+const typeCounts = computed(() => {
+  return trajectories.value.reduce(
+    (acc, t) => {
+      const key = t.type || 'other'
+      acc[key] = (acc[key] || 0) + 1
+      return acc
+    },
+    {},
+  )
+})
+const preferredDark = usePreferredDark()
+const isDark = useStorage('atlas-theme', preferredDark.value)
+const toggleDark = () => {
+  isDark.value = !isDark.value
+}
+
+onMounted(() => {
+  document.documentElement.classList.toggle('dark', isDark.value)
+})
+
+watch(
+  isDark,
+  (val) => {
+    document.documentElement.classList.toggle('dark', val)
+  },
+  { immediate: true },
 )
 
 const handleCoordinateSelected = (coord) => {
@@ -343,6 +381,26 @@ const toggleMapMode = () => {
   useOfflineMap.value = !useOfflineMap.value
 }
 
+const loadMoreTrajectories = async () => {
+  if (isLoadingExtras.value || extrasLoaded.value) return
+  isLoadingExtras.value = true
+  loadError.value = ''
+  try {
+    const res = await fetch('/data/trajectories-extra.json')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    const existingIds = new Set(trajectories.value.map((t) => t.id))
+    const merged = data.filter((item) => !existingIds.has(item.id))
+    trajectories.value = [...trajectories.value, ...merged]
+    extrasLoaded.value = true
+  } catch (err) {
+    loadError.value = 'Failed to load extra trajectories.'
+    console.error(err)
+  } finally {
+    isLoadingExtras.value = false
+  }
+}
+
 onBeforeUnmount(() => {
   if (overlayTimer) {
     clearTimeout(overlayTimer)
@@ -351,7 +409,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-white/90">
+  <div
+    class="min-h-screen"
+    :class="isDark ? 'bg-slate-900 text-slate-100' : 'bg-white/90 text-slate-900'"
+  >
     <div class="mx-auto flex w-full flex-col gap-6 px-6 pb-10 pt-8 lg:px-10">
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div class="space-y-2">
@@ -371,6 +432,9 @@ onBeforeUnmount(() => {
           <Button variant="outline" size="sm" @click="toggleMapMode">
             Map: {{ useOfflineMap ? 'Offline' : 'Default' }}
           </Button>
+          <Button variant="outline" size="sm" @click="toggleDark">
+            {{ isDark ? 'Light mode' : 'Dark mode' }}
+          </Button>
           <Button variant="outline" size="sm" @click="resetCamera">
             Reset view
           </Button>
@@ -383,11 +447,12 @@ onBeforeUnmount(() => {
             <CardHeader>
               <CardTitle class="text-lg">Trajectories</CardTitle>
               <CardDescription>
-                All paths are rendered on the globe. Click a row to set the
-                active path; selected is highlighted, others are muted.
+                {{ totalTrajectories }} tracks · {{ totalWaypoints }} waypoints
+                · air: {{ typeCounts.air || 0 }} · naval: {{ typeCounts.naval || 0 }}
+                · ground: {{ typeCounts.ground || 0 }} · other: {{ typeCounts.other || 0 }}
               </CardDescription>
             </CardHeader>
-            <CardContent class="space-y-3 h-[calc(100vh-360px)] overflow-y-auto pr-1">
+            <CardContent class="space-y-3 h-[calc(100vh-360px)] overflow-y-auto">
               <div
                 v-for="trajectory in trajectories"
                 :key="trajectory.id"
@@ -433,12 +498,33 @@ onBeforeUnmount(() => {
                   Active
                 </span>
               </div>
+              <div class="flex items-center gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="w-full"
+                  :disabled="isLoadingExtras || extrasLoaded"
+                  @click="loadMoreTrajectories"
+                >
+                  <span v-if="extrasLoaded">More trajectories loaded</span>
+                  <span v-else-if="isLoadingExtras">Loading…</span>
+                  <span v-else>Load more trajectories</span>
+                </Button>
+              </div>
+              <p v-if="loadError" class="text-xs text-red-600">
+                {{ loadError }}
+              </p>
             </CardContent>
           </Card>
         </div>
 
         <div
-          class="relative h-[calc(100vh-220px)] min-h-[640px] w-full overflow-hidden rounded-3xl border border-slate-200/70 bg-gradient-to-b from-slate-950 to-slate-900 shadow-2xl"
+          class="relative h-[calc(100vh-220px)] min-h-[640px] w-full overflow-hidden rounded-3xl border bg-gradient-to-b shadow-2xl"
+          :class="
+            isDark
+              ? 'border-slate-800 from-slate-950 to-black'
+              : 'border-slate-200/70 from-slate-950 to-slate-900'
+          "
         >
           <CesiumGlobe
             ref="globeRef"
