@@ -23,5 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Cesium cached/offline assets
-public/cesium/**
+# Cesium cached/offline assets (keep folder, ignore contents)
+public/cesium/*
+!public/cesium/.keep
