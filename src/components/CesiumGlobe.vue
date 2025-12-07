@@ -32,10 +32,12 @@ const defaultBaseLayer = Cesium.ImageryLayer.fromProviderAsync(
 )
 const NaturalEarthIILayer = Cesium.ImageryLayer.fromProviderAsync(
   new Cesium.TileMapServiceImageryProvider({
-    url: Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII'),
+    url: '/cesium/Assets/Textures/NaturalEarthII',
     credit: '',
   }),
 )
+
+console.log('NaturalEarthIILayer', NaturalEarthIILayer)
 
 const getImageryProvider = (isDefault) =>
   isDefault ? NaturalEarthIILayer : defaultBaseLayer
@@ -44,7 +46,7 @@ const applyImageryProvider = (offline) => {
   if (!viewerRef.value) return
   const layers = viewerRef.value.imageryLayers
   const provider = getImageryProvider(offline)
-  // layers.removeAll()
+  layers.removeAll()
   layers.addImageryProvider(provider)
 }
 
@@ -64,8 +66,7 @@ const createViewer = () => {
     timeline: false,
     vrButton: false,
     navigationInstructionsInitiallyVisible: false,
-    // baseLayer: defaultBaseLayer,
-    baseLayer: getImageryProvider(false),
+    // baseLayer: getImageryProvider(true),
   })
 
   console.log(Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII'))
