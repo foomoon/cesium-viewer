@@ -24,6 +24,7 @@ const viewerRef = ref(null)
 const handlerRef = ref(null)
 const trajectoryEntities = new Map()
 let selectedPointEntity = null
+const markerEntities = new Map()
 const defaultBaseLayer = Cesium.ImageryLayer.fromProviderAsync(
   Cesium.ArcGisMapServerImageryProvider.fromUrl(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
@@ -128,7 +129,6 @@ const addOrUpdateSelectedPoint = (cartesianPosition) => {
       color: Cesium.Color.fromCssColorString('#2563eb').withAlpha(0.95),
       outlineColor: Cesium.Color.WHITE.withAlpha(0.9),
       outlineWidth: 2,
-      disableDepthTestDistance: Number.POSITIVE_INFINITY,
     },
   })
 }
@@ -180,6 +180,50 @@ const syncTrajectories = (list) => {
       })
       trajectoryEntities.set(item.id, entity)
     }
+
+    // Clear existing markers for this trajectory
+    if (markerEntities.has(item.id)) {
+      markerEntities.get(item.id).forEach((marker) => {
+        viewerRef.value.entities.remove(marker)
+      })
+      markerEntities.delete(item.id)
+    }
+
+    // Add markers based on position.marker
+    const markers = []
+    item.positions.forEach((p, index) => {
+      if (!p.marker) return
+      const markerStyle = getMarkerStyle(p.marker)
+      const cartesian = Cesium.Cartesian3.fromDegrees(
+        p.lon,
+        p.lat,
+        p.height ?? 0,
+      )
+      const marker = viewerRef.value.entities.add({
+        position: cartesian,
+        point: {
+          pixelSize: markerStyle.pixelSize,
+          color: markerStyle.color,
+          outlineColor: markerStyle.outlineColor,
+          outlineWidth: markerStyle.outlineWidth,
+        },
+        label: markerStyle.label
+          ? {
+              text: markerStyle.label,
+              font: '12px "Helvetica Neue", Arial, sans-serif',
+              fillColor: Cesium.Color.WHITE,
+              outlineColor: Cesium.Color.fromCssColorString('#0f172a'),
+              outlineWidth: 3,
+              pixelOffset: new Cesium.Cartesian2(0, -18),
+              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            }
+          : undefined,
+      })
+      markers.push(marker)
+    })
+    if (markers.length) {
+      markerEntities.set(item.id, markers)
+    }
   })
 }
 
@@ -209,6 +253,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   handlerRef.value?.destroy?.()
   if (viewerRef.value && !viewerRef.value.isDestroyed()) {
+    markerEntities.forEach((markers) => {
+      markers.forEach((m) => viewerRef.value.entities.remove(m))
+    })
     if (selectedPointEntity) {
       viewerRef.value.entities.remove(selectedPointEntity)
     }
@@ -234,6 +281,36 @@ watch(
 )
 
 defineExpose({ resetView })
+
+const getMarkerStyle = (markerType) => {
+  switch (markerType) {
+    case 'start':
+      return {
+        color: Cesium.Color.fromCssColorString('#22c55e').withAlpha(0.95),
+        outlineColor: Cesium.Color.WHITE.withAlpha(0.9),
+        outlineWidth: 2,
+        pixelSize: 10,
+        label: 'Start',
+      }
+    case 'end':
+      return {
+        color: Cesium.Color.fromCssColorString('#ef4444').withAlpha(0.95),
+        outlineColor: Cesium.Color.WHITE.withAlpha(0.9),
+        outlineWidth: 2,
+        pixelSize: 10,
+        label: 'End',
+      }
+    case 'waypoint':
+    default:
+      return {
+        color: Cesium.Color.fromCssColorString('#475569').withAlpha(0.85),
+        outlineColor: Cesium.Color.WHITE.withAlpha(0.85),
+        outlineWidth: 1.5,
+        pixelSize: 8,
+        label: undefined,
+      }
+  }
+}
 </script>
 
 <template>

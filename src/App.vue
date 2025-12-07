@@ -23,9 +23,9 @@ const trajectories = ref([
     name: 'Atlantic hop',
     type: 'air',
     positions: [
-      { lat: 40.6413, lon: -73.7781, height: 0 },
-      { lat: 46.5, lon: -45, height: 11000 },
-      { lat: 51.47, lon: -0.4543, height: 0 },
+      { lat: 40.6413, lon: -73.7781, height: 0, marker: 'start' },
+      { lat: 46.5, lon: -45, height: 11000, marker: 'waypoint' },
+      { lat: 51.47, lon: -0.4543, height: 0, marker: 'end' },
     ],
   },
   {
@@ -33,10 +33,10 @@ const trajectories = ref([
     name: 'Pacific arc',
     type: 'air',
     positions: [
-      { lat: 37.6189, lon: -122.375, height: 0 },
-      { lat: 45.5, lon: -160, height: 12500 },
-      { lat: 42.2, lon: 170, height: 12500 },
-      { lat: 35.5494, lon: 139.7798, height: 0 },
+      { lat: 37.6189, lon: -122.375, height: 0, marker: 'start' },
+      { lat: 45.5, lon: -160, height: 12500, marker: 'waypoint' },
+      { lat: 42.2, lon: 170, height: 12500, marker: 'waypoint' },
+      { lat: 35.5494, lon: 139.7798, height: 0, marker: 'end' },
     ],
   },
   {
@@ -44,11 +44,11 @@ const trajectories = ref([
     name: 'Andes traverse',
     type: 'air',
     positions: [
-      { lat: -33.4489, lon: -70.6693, height: 0 },
-      { lat: -20.5, lon: -68.3, height: 9000 },
-      { lat: -13.5319, lon: -71.9675, height: 4500 },
-      { lat: -3.99, lon: -79.2, height: 9000 },
-      { lat: 6.207, lon: -75.575, height: 800 },
+      { lat: -33.4489, lon: -70.6693, height: 0, marker: 'start' },
+      { lat: -20.5, lon: -68.3, height: 9000, marker: 'waypoint' },
+      { lat: -13.5319, lon: -71.9675, height: 4500, marker: 'waypoint' },
+      { lat: -3.99, lon: -79.2, height: 9000, marker: 'waypoint' },
+      { lat: 6.207, lon: -75.575, height: 800, marker: 'end' },
     ],
   },
   {
@@ -56,9 +56,9 @@ const trajectories = ref([
     name: 'Arctic bridge',
     type: 'air',
     positions: [
-      { lat: 64.1265, lon: -21.8174, height: 0 },
-      { lat: 75, lon: -30, height: 10500 },
-      { lat: 68.707, lon: 33.55, height: 0 },
+      { lat: 64.1265, lon: -21.8174, height: 0, marker: 'start' },
+      { lat: 75, lon: -30, height: 10500, marker: 'waypoint' },
+      { lat: 68.707, lon: 33.55, height: 0, marker: 'end' },
     ],
   },
   {
@@ -66,9 +66,9 @@ const trajectories = ref([
     name: 'Mediterranean corridor',
     type: 'naval',
     positions: [
-      { lat: 36.8987, lon: 30.7133, height: 0 },
-      { lat: 38.5, lon: 15, height: 9500 },
-      { lat: 41.3851, lon: 2.1734, height: 0 },
+      { lat: 36.8987, lon: 30.7133, height: 0, marker: 'start' },
+      { lat: 38.5, lon: 15, height: 9500, marker: 'waypoint' },
+      { lat: 41.3851, lon: 2.1734, height: 0, marker: 'end' },
     ],
   },
   {
@@ -76,9 +76,9 @@ const trajectories = ref([
     name: 'Sahara link',
     type: 'ground',
     positions: [
-      { lat: 31.6295, lon: -7.9811, height: 0 },
-      { lat: 20.5, lon: 13.0, height: 10500 },
-      { lat: 12.9716, lon: 77.5946, height: 0 },
+      { lat: 31.6295, lon: -7.9811, height: 0, marker: 'start' },
+      { lat: 20.5, lon: 13.0, height: 10500, marker: 'waypoint' },
+      { lat: 12.9716, lon: 77.5946, height: 0, marker: 'end' },
     ],
   },
   {
@@ -86,9 +86,9 @@ const trajectories = ref([
     name: 'Austral loop',
     type: 'air',
     positions: [
-      { lat: -37.8136, lon: 144.9631, height: 0 },
-      { lat: -46, lon: 160, height: 11000 },
-      { lat: -36.8485, lon: 174.7633, height: 0 },
+      { lat: -37.8136, lon: 144.9631, height: 0, marker: 'start' },
+      { lat: -46, lon: 160, height: 11000, marker: 'waypoint' },
+      { lat: -36.8485, lon: 174.7633, height: 0, marker: 'end' },
     ],
   },
   {
@@ -96,9 +96,9 @@ const trajectories = ref([
     name: 'Baltic run',
     type: 'naval',
     positions: [
-      { lat: 59.437, lon: 24.7536, height: 0 },
-      { lat: 57.7, lon: 19.0, height: 8000 },
-      { lat: 55.6761, lon: 12.5683, height: 0 },
+      { lat: 59.437, lon: 24.7536, height: 0, marker: 'start' },
+      { lat: 57.7, lon: 19.0, height: 8000, marker: 'waypoint' },
+      { lat: 55.6761, lon: 12.5683, height: 0, marker: 'end' },
     ],
   },
 ])
@@ -118,6 +118,8 @@ const iconByType = {
 }
 
 const getIcon = (type) => iconByType[type] || Circle
+const waypointCount = (trajectory) =>
+  trajectory.positions.filter((p) => p.marker === 'waypoint').length
 
 const activeTrajectory = computed(() =>
   trajectories.value.find((t) => t.id === selectedTrajectoryId.value),
@@ -218,7 +220,7 @@ onBeforeUnmount(() => {
                       {{ trajectory.name }}
                     </p>
                     <p class="text-xs text-slate-500">
-                      {{ trajectory.positions.length }} control points ·
+                      {{ waypointCount(trajectory) }} waypoints ·
                       {{ trajectory.type || 'other' }}
                     </p>
                   </div>
