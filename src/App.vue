@@ -358,6 +358,7 @@ const isUploadingTrajectory = ref(false)
 const uploadError = ref('')
 const fileInputRef = ref(null)
 const uploadSuccess = ref('')
+const pendingDeleteId = ref('')
 const initialTrajectories = computed(() => [...trajectories.value])
 
 const iconByType = {
@@ -634,6 +635,19 @@ const clearTrajectories = () => {
   selectedTrajectoryId.value = ''
 }
 
+const deleteTrajectory = (id, confirmed = false) => {
+  if (!confirmed) {
+    pendingDeleteId.value = id
+    return
+  }
+  trajectories.value = trajectories.value.filter((t) => t.id !== id)
+  pendingDeleteId.value = ''
+  if (selectedTrajectoryId.value === id) {
+    selectedTrajectoryId.value =
+      trajectories.value.length > 0 ? trajectories.value[0].id : ''
+  }
+}
+
 const convertTxtToTrajectory = (text, filename) => {
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0)
   const dataLines = lines.filter((l) => !l.trim().startsWith('Time'))
@@ -801,6 +815,42 @@ onBeforeUnmount(() => {
                 >
                   Active
                 </span>
+                <div class="flex items-center gap-2">
+                  <Button
+                    v-if="pendingDeleteId !== trajectory.id"
+                    variant="ghost"
+                    size="icon-sm"
+                    class="text-slate-400 hover:text-red-500"
+                    @click.stop="deleteTrajectory(trajectory.id)"
+                    aria-label="Delete trajectory"
+                  >
+                    ×
+                  </Button>
+                  <div
+                    v-else
+                    class="flex items-center gap-1 text-[11px] uppercase tracking-[0.15em] text-slate-500"
+                  >
+                    <span>Confirm?</span>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      class="text-green-600"
+                      @click.stop="deleteTrajectory(trajectory.id, true)"
+                      aria-label="Confirm delete"
+                    >
+                      ✓
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      class="text-slate-500 hover:text-slate-700"
+                      @click.stop="pendingDeleteId = ''"
+                      aria-label="Cancel delete"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                </div>
               </div>
               <div class="flex items-center gap-2 pt-2">
                 <Button
