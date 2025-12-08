@@ -577,23 +577,25 @@ const handleUploadClick = () => {
 }
 
 const handleFileSelected = async (event) => {
-  const file = event.target.files?.[0]
-  if (!file) return
+  const files = Array.from(event.target.files || [])
+  if (!files.length) return
   isUploadingTrajectory.value = true
   uploadError.value = ''
   uploadSuccess.value = ''
   try {
-    const ext = file.name.split('.').pop()?.toLowerCase()
-    const text = await file.text()
-    if (ext === 'txt') {
-      const trajectory = convertTxtToTrajectory(text, file.name)
-      addTrajectoryIfNew(trajectory)
-    } else if (ext === 'json') {
-      const parsed = JSON.parse(text)
-      const incoming = Array.isArray(parsed) ? parsed : [parsed]
-      incoming.forEach(addTrajectoryIfNew)
-    } else {
-      uploadError.value = 'Unsupported file type. Use .txt or .json.'
+    for (const file of files) {
+      const ext = file.name.split('.').pop()?.toLowerCase()
+      const text = await file.text()
+      if (ext === 'txt') {
+        const trajectory = convertTxtToTrajectory(text, file.name)
+        addTrajectoryIfNew(trajectory)
+      } else if (ext === 'json') {
+        const parsed = JSON.parse(text)
+        const incoming = Array.isArray(parsed) ? parsed : [parsed]
+        incoming.forEach(addTrajectoryIfNew)
+      } else {
+        uploadError.value = 'Unsupported file type. Use .txt or .json.'
+      }
     }
     if (!uploadError.value) {
       uploadSuccess.value = 'Upload complete.'
@@ -686,7 +688,7 @@ onBeforeUnmount(() => {
       <header class="flex flex-wrap items-center justify-between gap-4">
         <div class="space-y-2">
           <p class="text-xs uppercase tracking-[0.25em] text-slate-500">
-            Cesium baseline
+            Trajectory dashboard
           </p>
           <h1
             class="text-3xl font-semibold lg:text-4xl"
@@ -695,9 +697,9 @@ onBeforeUnmount(() => {
             Atlas Nexus
           </h1>
           <p class="max-w-2xl text-sm text-slate-600">
-            A focused Cesium canvas for engineers and mission teams. Click to
-            sample coordinates, toggle between tracks, and keep multiple
-            trajectories visible at once.
+            Mission-grade Cesium workspace for plotting and comparing trajectories.
+            Click to sample lat/lon, swap base layers, load new tracks, and inspect
+            waypoints, range, and apogee at a glance.
           </p>
         </div>
         <div class="flex items-center gap-2">
@@ -826,6 +828,7 @@ onBeforeUnmount(() => {
                   ref="fileInputRef"
                   type="file"
                   accept=".txt,.json,application/json,text/plain"
+                  multiple
                   class="hidden"
                   @change="handleFileSelected"
                 />
