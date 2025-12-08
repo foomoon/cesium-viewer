@@ -359,6 +359,8 @@ const uploadError = ref('')
 const fileInputRef = ref(null)
 const uploadSuccess = ref('')
 const pendingDeleteId = ref('')
+const downsampleEnabled = ref(false)
+const downsampleEvery = ref(5)
 const initialTrajectories = computed(() => [...trajectories.value])
 
 const iconByType = {
@@ -624,9 +626,31 @@ const loadTrajectoriesFrom = async (path) => {
 const addTrajectoryIfNew = (trajectory) => {
   const existingIds = new Set(trajectories.value.map((t) => t.id))
   if (!existingIds.has(trajectory.id)) {
-    trajectories.value = [...trajectories.value, trajectory]
+    const processed = downsampleEnabled.value
+      ? downsampleTrajectory(trajectory, Math.max(1, Number(downsampleEvery.value) || 1))
+      : trajectory
+    trajectories.value = [...trajectories.value, processed]
   } else {
     uploadError.value = 'A trajectory with this id already exists.'
+  }
+}
+
+const downsampleTrajectory = (trajectory, step) => {
+  const ds = (list) => {
+    if (!Array.isArray(list) || list.length === 0) return []
+    if (step <= 1) return list
+    const result = []
+    list.forEach((p, idx) => {
+      if (idx === 0 || idx === list.length - 1 || idx % step === 0) {
+        result.push(p)
+      }
+    })
+    return result
+  }
+  return {
+    ...trajectory,
+    positions: ds(trajectory.positions),
+    waypoints: ds(trajectory.waypoints),
   }
 }
 
@@ -892,6 +916,33 @@ onBeforeUnmount(() => {
               <p v-if="uploadSuccess" class="text-xs text-green-600">
                 {{ uploadSuccess }}
               </p>
+              <details class="pt-3 text-xs text-slate-700 dark:text-slate-200">
+                <summary class="cursor-pointer select-none text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                  Advanced
+                </summary>
+                <div class="mt-2 grid grid-cols-2 gap-2">
+                  <label class="flex items-center gap-2">
+                    <input
+                      v-model="downsampleEnabled"
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span class="text-slate-600 dark:text-slate-300">
+                      Downsample imports
+                    </span>
+                  </label>
+                  <div class="flex items-center gap-2 justify-end">
+                    <span class="text-slate-600 dark:text-slate-300">Every</span>
+                    <input
+                      v-model.number="downsampleEvery"
+                      type="number"
+                      min="1"
+                      class="w-16 rounded border border-slate-300 bg-white/80 px-2 py-1 text-xs text-slate-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+                    />
+                    <span class="text-slate-600 dark:text-slate-300">pts</span>
+                  </div>
+                </div>
+              </details>
               <div class="pt-2">
                 <Button
                   variant="outline"
