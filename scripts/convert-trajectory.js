@@ -40,8 +40,11 @@ const loadFile = async (filePath) => {
 
   const positions = dataLines.map((line) => {
     const cols = parseLine(line)
-    const [ , x, y, z ] = cols
-    return ecefToCartographic(x, y, z)
+    const [time = 0, x, y, z] = cols
+    return {
+      ...ecefToCartographic(x, y, z),
+      time,
+    }
   })
 
   return positions

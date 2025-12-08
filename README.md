@@ -55,11 +55,11 @@ npm run dev
     "waypoints": { "min": 0, "max": 10 }
   },
   "positions": [
-    { "lat": 0, "lon": 0, "height": 0 },
-    { "lat": 1, "lon": 1, "height": 1000 }
+    { "lat": 0, "lon": 0, "altitude": 0, "time": 0 },
+    { "lat": 1, "lon": 1, "altitude": 1000, "time": 600 }
   ],
   "waypoints": [
-    { "lat": 1, "lon": 1, "height": 1000 }
+    { "lat": 1, "lon": 1, "altitude": 1000, "time": 600 }
   ]
 }
 ```

@@ -26,9 +26,9 @@ const trajectories = ref([
     name: 'Atlantic hop',
     type: 'air',
     positions: [
-      { lat: 40.6413, lon: -73.7781, altitude: 0 },
-      { lat: 46.5, lon: -45, altitude: 11000 },
-      { lat: 51.47, lon: -0.4543, altitude: 0 },
+      { lat: 40.6413, lon: -73.7781, altitude: 0, time: 0 },
+      { lat: 46.5, lon: -45, altitude: 11000, time: 600 },
+      { lat: 51.47, lon: -0.4543, altitude: 0, time: 1200 },
     ],
     waypoints: [{ lat: 46.5, lon: -45, altitude: 11000 }],
   },
@@ -37,10 +37,10 @@ const trajectories = ref([
     name: 'Pacific arc',
     type: 'air',
     positions: [
-      { lat: 37.6189, lon: -122.375, altitude: 0 },
-      { lat: 45.5, lon: -160, altitude: 12500 },
-      { lat: 42.2, lon: 170, altitude: 12500 },
-      { lat: 35.5494, lon: 139.7798, altitude: 0 },
+      { lat: 37.6189, lon: -122.375, altitude: 0, time: 0 },
+      { lat: 45.5, lon: -160, altitude: 12500, time: 900 },
+      { lat: 42.2, lon: 170, altitude: 12500, time: 1800 },
+      { lat: 35.5494, lon: 139.7798, altitude: 0, time: 2700 },
     ],
     waypoints: [
       { lat: 45.5, lon: -160, altitude: 12500 },
@@ -52,11 +52,11 @@ const trajectories = ref([
     name: 'Andes traverse',
     type: 'air',
     positions: [
-      { lat: -33.4489, lon: -70.6693, altitude: 0 },
-      { lat: -20.5, lon: -68.3, altitude: 9000 },
-      { lat: -13.5319, lon: -71.9675, altitude: 4500 },
-      { lat: -3.99, lon: -79.2, altitude: 9000 },
-      { lat: 6.207, lon: -75.575, altitude: 800 },
+      { lat: -33.4489, lon: -70.6693, altitude: 0, time: 0 },
+      { lat: -20.5, lon: -68.3, altitude: 9000, time: 600 },
+      { lat: -13.5319, lon: -71.9675, altitude: 4500, time: 1200 },
+      { lat: -3.99, lon: -79.2, altitude: 9000, time: 1800 },
+      { lat: 6.207, lon: -75.575, altitude: 800, time: 2400 },
     ],
     waypoints: [
       { lat: -20.5, lon: -68.3, altitude: 9000 },
@@ -69,9 +69,9 @@ const trajectories = ref([
     name: 'Arctic bridge',
     type: 'air',
     positions: [
-      { lat: 64.1265, lon: -21.8174, altitude: 0 },
-      { lat: 75, lon: -30, altitude: 10500 },
-      { lat: 68.707, lon: 33.55, altitude: 0 },
+      { lat: 64.1265, lon: -21.8174, altitude: 0, time: 0 },
+      { lat: 75, lon: -30, altitude: 10500, time: 900 },
+      { lat: 68.707, lon: 33.55, altitude: 0, time: 1800 },
     ],
     waypoints: [{ lat: 75, lon: -30, altitude: 10500 }],
   },
@@ -80,9 +80,9 @@ const trajectories = ref([
     name: 'Mediterranean corridor',
     type: 'naval',
     positions: [
-      { lat: 36.8987, lon: 30.7133, altitude: 0 },
-      { lat: 38.5, lon: 15, altitude: 9500 },
-      { lat: 41.3851, lon: 2.1734, altitude: 0 },
+      { lat: 36.8987, lon: 30.7133, altitude: 0, time: 0 },
+      { lat: 38.5, lon: 15, altitude: 9500, time: 600 },
+      { lat: 41.3851, lon: 2.1734, altitude: 0, time: 1200 },
     ],
     waypoints: [{ lat: 38.5, lon: 15, altitude: 9500 }],
   },
@@ -91,9 +91,9 @@ const trajectories = ref([
     name: 'Sahara link',
     type: 'ground',
     positions: [
-      { lat: 31.6295, lon: -7.9811, altitude: 0 },
-      { lat: 20.5, lon: 13.0, altitude: 10500 },
-      { lat: 12.9716, lon: 77.5946, altitude: 0 },
+      { lat: 31.6295, lon: -7.9811, altitude: 0, time: 0 },
+      { lat: 20.5, lon: 13.0, altitude: 10500, time: 600 },
+      { lat: 12.9716, lon: 77.5946, altitude: 0, time: 1200 },
     ],
     waypoints: [{ lat: 20.5, lon: 13.0, altitude: 10500 }],
   },
@@ -102,9 +102,9 @@ const trajectories = ref([
     name: 'Austral loop',
     type: 'air',
     positions: [
-      { lat: -37.8136, lon: 144.9631, altitude: 0 },
-      { lat: -46, lon: 160, altitude: 11000 },
-      { lat: -36.8485, lon: 174.7633, altitude: 0 },
+      { lat: -37.8136, lon: 144.9631, altitude: 0, time: 0 },
+      { lat: -46, lon: 160, altitude: 11000, time: 600 },
+      { lat: -36.8485, lon: 174.7633, altitude: 0, time: 1200 },
     ],
     waypoints: [{ lat: -46, lon: 160, altitude: 11000 }],
   },
@@ -113,9 +113,9 @@ const trajectories = ref([
     name: 'Baltic run',
     type: 'naval',
     positions: [
-      { lat: 59.437, lon: 24.7536, altitude: 0 },
-      { lat: 57.7, lon: 19.0, altitude: 8000 },
-      { lat: 55.6761, lon: 12.5683, altitude: 0 },
+      { lat: 59.437, lon: 24.7536, altitude: 0, time: 0 },
+      { lat: 57.7, lon: 19.0, altitude: 8000, time: 600 },
+      { lat: 55.6761, lon: 12.5683, altitude: 0, time: 1200 },
     ],
     waypoints: [{ lat: 57.7, lon: 19.0, altitude: 8000 }],
   },
@@ -358,6 +358,7 @@ const isUploadingTrajectory = ref(false)
 const uploadError = ref('')
 const fileInputRef = ref(null)
 const uploadSuccess = ref('')
+const initialTrajectories = computed(() => [...trajectories.value])
 
 const iconByType = {
   air: Plane,
@@ -442,16 +443,18 @@ const positionsWithMarkers = (trajectory) => {
 const applyTrajectoryDefaults = (t) => {
   const type = t.type || 'other'
   const normalizedPositions =
-    t.positions?.map((p) => ({
+    t.positions?.map((p, idx) => ({
       ...p,
       altitude: p.altitude ?? p.height ?? 0,
       height: p.altitude ?? p.height ?? 0,
+      time: p.time ?? idx * 60,
     })) || []
   const normalizedWaypoints =
-    t.waypoints?.map((p) => ({
+    t.waypoints?.map((p, idx) => ({
       ...p,
       altitude: p.altitude ?? p.height ?? 0,
       height: p.altitude ?? p.height ?? 0,
+      time: p.time ?? idx * 60,
     })) || []
   return {
     ...t,
@@ -490,6 +493,12 @@ const maxApogee = (trajectory) => {
     (max, p) => Math.max(max, p.altitude ?? p.height ?? 0),
     0,
   )
+}
+const durationSeconds = (trajectory) => {
+  if (!trajectory || !trajectory.positions?.length) return 0
+  const first = trajectory.positions[0].time ?? 0
+  const last = trajectory.positions[trajectory.positions.length - 1].time ?? 0
+  return Math.max(0, last - first)
 }
 const formatLabel = (val) => {
   const str = val || 'other'
@@ -616,6 +625,11 @@ const addTrajectoryIfNew = (trajectory) => {
   } else {
     uploadError.value = 'A trajectory with this id already exists.'
   }
+}
+
+const clearTrajectories = () => {
+  trajectories.value = []
+  selectedTrajectoryId.value = ''
 }
 
 const convertTxtToTrajectory = (text, filename) => {
@@ -825,6 +839,16 @@ onBeforeUnmount(() => {
               <p v-if="uploadSuccess" class="text-xs text-green-600">
                 {{ uploadSuccess }}
               </p>
+              <div class="pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="w-full text-red-600 hover:text-red-700"
+                  @click="clearTrajectories"
+                >
+                  Clear all trajectories
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -882,6 +906,12 @@ onBeforeUnmount(() => {
                     <p class="text-[11px]">Max apogee</p>
                     <p class="text-sm font-semibold text-white">
                       {{ Math.round(maxApogee(activeTrajectory)) }} m
+                    </p>
+                  </div>
+                  <div class="space-y-0.5">
+                    <p class="text-[11px]">Duration</p>
+                    <p class="text-sm font-semibold text-white">
+                      {{ Math.round(durationSeconds(activeTrajectory)) }} s
                     </p>
                   </div>
                   <div class="space-y-0.5">
