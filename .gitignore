@@ -25,4 +25,5 @@ dist-ssr
 
 # Cesium cached/offline assets (keep folder, ignore contents)
 public/cesium/*
+public/data/example.txt
 !public/cesium/.keep
