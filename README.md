@@ -25,6 +25,7 @@ npm run dev
 - `npm run build` – production build
 - `npm run preview` – preview the production build
 - `npm run copy:naturalearth2` – copy Cesium Natural Earth II assets into `public/cesium` (run once after install if you want offline Natural Earth II)
+- `npm run convert:trajectory` – parse a whitespace ECEF txt (default `public/data/lrbm.txt`) into `public/data/trajectory-converted.json` (ECEF -> lat/lon/altitude, empty waypoints)
 
 To enable Natural Earth II offline:
 

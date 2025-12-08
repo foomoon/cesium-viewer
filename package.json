@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "copy:naturalearth2": "mkdir -p public/cesium && cp -R node_modules/cesium/Build/Cesium/Assets/Textures/NaturalEarthII public/cesium/NaturalEarthII"
+    "copy:naturalearth2": "mkdir -p public/cesium && cp -R node_modules/cesium/Build/Cesium/Assets/Textures/NaturalEarthII public/cesium/NaturalEarthII",
+    "convert:trajectory": "node scripts/convert-trajectory.js public/data/lrbm.txt public/data/trajectory-converted.json"
   },
   "dependencies": {
     "@vueuse/core": "^14.1.0",

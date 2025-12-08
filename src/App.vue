@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { usePreferredDark, useStorage } from '@vueuse/core'
+import * as Cesium from 'cesium'
 import CesiumGlobe from './components/CesiumGlobe.vue'
 import {
   Card,
@@ -17,6 +18,7 @@ import {
   Navigation,
   Circle,
 } from 'lucide-vue-next'
+import CompactGauge from './components/CompactGauge.vue'
 
 const trajectories = ref([
   {
@@ -352,6 +354,10 @@ const useOfflineMap = ref(false)
 const isLoadingExtras = ref(false)
 const extrasLoaded = ref(false)
 const loadError = ref('')
+const isUploadingTrajectory = ref(false)
+const uploadError = ref('')
+const fileInputRef = ref(null)
+const uploadSuccess = ref('')
 
 const iconByType = {
   air: Plane,
@@ -541,18 +547,108 @@ const loadMoreTrajectories = async () => {
   isLoadingExtras.value = true
   loadError.value = ''
   try {
-    const res = await fetch('/data/trajectories-extra.json')
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
-    const existingIds = new Set(trajectories.value.map((t) => t.id))
-    const merged = data.filter((item) => !existingIds.has(item.id))
-    trajectories.value = [...trajectories.value, ...merged]
+    await loadTrajectoriesFrom('/data/trajectories-extra.json')
     extrasLoaded.value = true
   } catch (err) {
     loadError.value = 'Failed to load extra trajectories.'
     console.error(err)
   } finally {
     isLoadingExtras.value = false
+  }
+}
+
+const loadLrbmTrajectory = async () => {
+  // no-op placeholder retained to avoid breaking references
+}
+
+const handleUploadClick = () => {
+  uploadError.value = ''
+  uploadSuccess.value = ''
+  fileInputRef.value?.click()
+}
+
+const handleFileSelected = async (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  isUploadingTrajectory.value = true
+  uploadError.value = ''
+  uploadSuccess.value = ''
+  try {
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    const text = await file.text()
+    if (ext === 'txt') {
+      const trajectory = convertTxtToTrajectory(text, file.name)
+      addTrajectoryIfNew(trajectory)
+    } else if (ext === 'json') {
+      const parsed = JSON.parse(text)
+      const incoming = Array.isArray(parsed) ? parsed : [parsed]
+      incoming.forEach(addTrajectoryIfNew)
+    } else {
+      uploadError.value = 'Unsupported file type. Use .txt or .json.'
+    }
+    if (!uploadError.value) {
+      uploadSuccess.value = 'Upload complete.'
+    }
+  } catch (err) {
+    console.error(err)
+    uploadError.value = 'Failed to convert trajectory file.'
+  } finally {
+    isUploadingTrajectory.value = false
+    if (fileInputRef.value) {
+      fileInputRef.value.value = ''
+    }
+  }
+}
+
+const loadTrajectoriesFrom = async (path) => {
+  const res = await fetch(path)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const data = await res.json()
+  const existingIds = new Set(trajectories.value.map((t) => t.id))
+  const merged = data.filter((item) => !existingIds.has(item.id))
+  trajectories.value = [...trajectories.value, ...merged]
+}
+
+const addTrajectoryIfNew = (trajectory) => {
+  const existingIds = new Set(trajectories.value.map((t) => t.id))
+  if (!existingIds.has(trajectory.id)) {
+    trajectories.value = [...trajectories.value, trajectory]
+  } else {
+    uploadError.value = 'A trajectory with this id already exists.'
+  }
+}
+
+const convertTxtToTrajectory = (text, filename) => {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0)
+  const dataLines = lines.filter((l) => !l.trim().startsWith('Time'))
+  const FEET_TO_METERS = 0.3048
+
+  const positions = dataLines.map((line) => {
+    const cols = line.trim().split(/\s+/).map(Number)
+    const [, x, y, z] = cols
+    const cartesian = new Cesium.Cartesian3(
+      x * FEET_TO_METERS,
+      y * FEET_TO_METERS,
+      z * FEET_TO_METERS,
+    )
+    const carto = Cesium.Cartographic.fromCartesian(cartesian)
+    return {
+      lat: +Cesium.Math.toDegrees(carto.latitude).toFixed(6),
+      lon: +Cesium.Math.toDegrees(carto.longitude).toFixed(6),
+      altitude: Math.round(carto.height),
+    }
+  })
+
+  const id = filename.replace(/\.[^/.]+$/, '')
+  return {
+    id,
+    name: formatLabel(id),
+    type: 'other',
+    velocityProfile: 'other',
+    maneuverability: 'no-waypoint',
+    convergence: 'nominal',
+    positions,
+    waypoints: [],
   }
 }
 
@@ -616,8 +712,27 @@ onBeforeUnmount(() => {
                 · air: {{ typeCounts.air || 0 }} · naval: {{ typeCounts.naval || 0 }}
                 · ground: {{ typeCounts.ground || 0 }} · other: {{ typeCounts.other || 0 }}
               </CardDescription>
+              <div
+                class="mt-3 grid gap-2 rounded-xl border border-neutral-200/70 bg-white/60 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/60"
+              >
+                <div
+                  class="flex items-center justify-between text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400"
+                >
+                  <span>Envelopes</span>
+                  <!-- <span class="text-[10px]">Apogee · Range</span> -->
+                </div>
+
+                <CompactGauge
+                  :min="0"
+                  :max="12000"
+                  :value="Math.round(groundRangeKm(activeTrajectory || decoratedTrajectories[0]))"
+                  label="Range"
+                  unit=" km"
+                />
+              </div>
             </CardHeader>
             <CardContent class="space-y-3 flex-1 overflow-y-auto">
+  
               <div
                 v-for="trajectory in decoratedTrajectories"
                 :key="trajectory.id"
@@ -683,9 +798,32 @@ onBeforeUnmount(() => {
                   <span v-else-if="isLoadingExtras">Loading…</span>
                   <span v-else>Load more trajectories</span>
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="w-full"
+                  :disabled="isUploadingTrajectory"
+                  @click="handleUploadClick"
+                >
+                  <span v-if="isUploadingTrajectory">Uploading…</span>
+                  <span v-else>Upload</span>
+                </Button>
+                <input
+                  ref="fileInputRef"
+                  type="file"
+                  accept=".txt,.json,application/json,text/plain"
+                  class="hidden"
+                  @change="handleFileSelected"
+                />
               </div>
               <p v-if="loadError" class="text-xs text-red-600">
                 {{ loadError }}
+              </p>
+              <p v-if="uploadError" class="text-xs text-red-600">
+                {{ uploadError }}
+              </p>
+              <p v-if="uploadSuccess" class="text-xs text-green-600">
+                {{ uploadSuccess }}
               </p>
             </CardContent>
           </Card>
