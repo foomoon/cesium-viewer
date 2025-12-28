@@ -16,6 +16,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  useFlatMap: {
+    type: Boolean,
+    default: false,
+  },
+  useLighting: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(["coordinate-selected"]);
@@ -36,17 +44,27 @@ const defaultBaseLayer = //Cesium.ImageryLayer.fromProviderAsync(
 
 const NaturalEarthIILayer = //new Cesium.ImageryLayer(
   new Cesium.UrlTemplateImageryProvider({
-    url: "cesium/Assets/Textures/NaturalEarthII" + "/{z}/{x}/{reverseY}.jpg",
+    url: "/cesium/Assets/Textures/NaturalEarthII/{z}/{x}/{reverseY}.jpg",
     tilingScheme: new Cesium.GeographicTilingScheme(),
     maximumLevel: 2, // Natural Earth II has a limited zoom level
   });
 
-
-const Sentinel2CloudlessLayer =
-  new Cesium.UrlTemplateImageryProvider({
-    url: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020/default/g/{z}/{x}/{y}.jpg',
-    credit: '© Sentinel-2 Cloudless by EOX'
+  // Your local Blue Marble tiles (XYZ, Web Mercator)
+  const blueMarbleProvider = new Cesium.UrlTemplateImageryProvider({
+    url: "/cesium/tiles/blue-marble/{z}/{x}/{y}.jpg",
+    tilingScheme: new Cesium.WebMercatorTilingScheme(),
+    minimumLevel: 0,
+    maximumLevel: 6, // must match how you generated tiles
+    // Optional: if your server is slow, you can increase retries
+    // retryAttempts: 3, // (Cesium doesn't expose on all versions)
   });
+
+
+// const Sentinel2CloudlessLayer =
+//   new Cesium.UrlTemplateImageryProvider({
+//     url: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020/default/g/{z}/{x}/{y}.jpg',
+//     credit: '© Sentinel-2 Cloudless by EOX'
+//   });
 
 
 
@@ -55,7 +73,7 @@ const getImageryLayer = (provider) => {
 };
 
 const getImageryProvider = (isDefault) =>
-  isDefault ? NaturalEarthIILayer : defaultBaseLayer;
+  isDefault ? blueMarbleProvider : defaultBaseLayer;
 
 const applyImageryProvider = (offline) => {
   if (!viewerRef.value) return;
@@ -63,6 +81,21 @@ const applyImageryProvider = (offline) => {
   const provider = getImageryProvider(offline);
   layers.removeAll();
   layers.add(getImageryLayer(provider), 0);
+};
+
+const applySceneMode = (useFlat) => {
+  if (!viewerRef.value) return;
+  const scene = viewerRef.value.scene;
+  if (useFlat && scene.mode !== Cesium.SceneMode.SCENE2D) {
+    scene.morphTo2D(0.8);
+  } else if (!useFlat && scene.mode !== Cesium.SceneMode.SCENE3D) {
+    scene.morphTo3D(0.8);
+  }
+};
+
+const applyLighting = (enabled) => {
+  if (!viewerRef.value) return;
+  viewerRef.value.scene.globe.enableLighting = enabled;
 };
 
 const createViewer = () => {
@@ -89,12 +122,14 @@ const createViewer = () => {
   //   applyImageryProvider(props.useOfflineMap)
   // }, 5000)
 
-  viewerRef.value.scene.globe.enableLighting = true;
+  viewerRef.value.scene.globe.enableLighting = props.useLighting;
   viewerRef.value.scene.globe.showGroundAtmosphere = true;
   viewerRef.value.scene.globe.depthTestAgainstTerrain = true;
   viewerRef.value.scene.globe.minimumZoomDistance = 500000;
   viewerRef.value.cesiumWidget.creditContainer.style.display = "none";
 
+  applySceneMode(props.useFlatMap);
+  applyLighting(props.useLighting);
   setClickHandler();
   resetView();
   syncTrajectories(props.trajectories);
@@ -160,6 +195,50 @@ const getStyleFor = (id) => {
   };
 };
 
+const groundTrackPositions = (trajectory) => {
+  if (!trajectory) return [];
+  const points = [];
+  const source = trajectory.positions || [];
+  if (source.length) {
+    points.push({ ...source[0], altitude: 0, height: 0 });
+  }
+  (trajectory.waypoints || []).forEach((wp) => {
+    points.push({ ...wp, altitude: 0, height: 0 });
+  });
+  if (source.length > 1) {
+    points.push({ ...source[source.length - 1], altitude: 0, height: 0 });
+  }
+  // Ensure we have at least two points; otherwise fall back to original
+  if (points.length < 2) {
+    return source.map((p) => ({ ...p, altitude: 0, height: 0 }));
+  }
+  // Remove consecutive duplicates that might appear if waypoints match endpoints
+  return points.filter((p, idx) => {
+    if (idx === 0) return true;
+    const prev = points[idx - 1];
+    return !(p.lat === prev.lat && p.lon === prev.lon);
+  });
+};
+
+const buildPolylinePositions = (trajectory) => {
+  if (!trajectory || !trajectory.positions?.length) return [];
+  const useGroundTrack = trajectory.id !== props.selectedTrajectoryId;
+  const source = useGroundTrack
+    ? groundTrackPositions(trajectory)
+    : trajectory.positions;
+  if (!source.length) return [];
+
+  if (useGroundTrack) {
+    return Cesium.Cartesian3.fromDegreesArray(
+      source.flatMap((p) => [p.lon, p.lat])
+    );
+  }
+
+  return Cesium.Cartesian3.fromDegreesArrayHeights(
+    source.flatMap((p) => [p.lon, p.lat, p.altitude ?? 0])
+  );
+};
+
 const syncTrajectories = (list) => {
   if (!viewerRef.value) return;
   const ids = new Set(list.map((item) => item.id));
@@ -172,9 +251,7 @@ const syncTrajectories = (list) => {
   }
 
   list.forEach((item) => {
-    const positions = Cesium.Cartesian3.fromDegreesArrayHeights(
-      item.positions.flatMap((p) => [p.lon, p.lat, p.altitude ?? 0])
-    );
+    const positions = buildPolylinePositions(item);
     const { color, width, alpha } = getStyleFor(item.id);
     const material = new Cesium.ColorMaterialProperty(
       Cesium.Color.fromCssColorString(color).withAlpha(alpha)
@@ -205,16 +282,8 @@ const syncTrajectories = (list) => {
 
 const highlightSelected = async (selectedId) => {
   if (!viewerRef.value) return;
-  trajectoryEntities.forEach((entity, id) => {
-    if (!entity.polyline) return;
-    const { color, width, alpha } = getStyleFor(id);
-    entity.polyline.width = width;
-    entity.polyline.material = new Cesium.ColorMaterialProperty(
-      Cesium.Color.fromCssColorString(color).withAlpha(alpha)
-    );
-  });
-
-  setMarkersForSelected();
+  // Re-sync to swap ballistic tracks between ground-track and full profile
+  syncTrajectories(props.trajectories);
 
   if (selectedId && trajectoryEntities.has(selectedId)) {
     const entity = trajectoryEntities.get(selectedId);
@@ -254,6 +323,16 @@ watch(
 watch(
   () => props.useOfflineMap,
   (next) => applyImageryProvider(next)
+);
+
+watch(
+  () => props.useFlatMap,
+  (next) => applySceneMode(next)
+);
+
+watch(
+  () => props.useLighting,
+  (next) => applyLighting(next)
 );
 
 defineExpose({ resetView });
