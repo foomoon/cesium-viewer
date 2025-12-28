@@ -1,0 +1,6 @@
+# Numerical dependency required by GDAL utilities
+numpy>=1.26,<2.0
+
+# GDAL Python bindings
+# MUST match `gdal-config --version`
+GDAL==3.11.4
