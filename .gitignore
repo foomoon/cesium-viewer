@@ -28,3 +28,5 @@ public/cesium/*
 public/data/examples
 public/data/trajectory-converted.json
 !public/cesium/.keep
+
+.venv
