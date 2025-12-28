@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "build:blue-marble-tiles": "sh scripts/build_blue_marble_tiles.sh",
     "copy:naturalearth2": "mkdir -p public/cesium && cp -R node_modules/cesium/Build/Cesium/Assets/Textures/NaturalEarthII public/cesium/NaturalEarthII",
     "convert:trajectory": "node scripts/convert-trajectory.js public/data/lrbm.txt public/data/trajectory-converted.json"
   },
