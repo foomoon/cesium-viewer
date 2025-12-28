@@ -54,7 +54,7 @@ const NaturalEarthIILayer = //new Cesium.ImageryLayer(
     url: "/cesium/tiles/blue-marble/{z}/{x}/{y}.jpg",
     tilingScheme: new Cesium.WebMercatorTilingScheme(),
     minimumLevel: 0,
-    maximumLevel: 6, // must match how you generated tiles
+    maximumLevel: 8, // must match how you generated tiles
     // Optional: if your server is slow, you can increase retries
     // retryAttempts: 3, // (Cesium doesn't expose on all versions)
   });
