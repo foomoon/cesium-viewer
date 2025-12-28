@@ -351,6 +351,8 @@ const globeRef = ref(null)
 const coordinateOverlayVisible = ref(false)
 let overlayTimer = null
 const useOfflineMap = ref(false)
+const useFlatMap = ref(false)
+const useLighting = ref(true)
 const isLoadingExtras = ref(false)
 const extrasLoaded = ref(false)
 const loadError = ref('')
@@ -554,6 +556,14 @@ const toggleMapMode = () => {
   useOfflineMap.value = !useOfflineMap.value
 }
 
+const toggleFlatMap = () => {
+  useFlatMap.value = !useFlatMap.value
+}
+
+const toggleLighting = () => {
+  useLighting.value = !useLighting.value
+}
+
 const loadMoreTrajectories = async () => {
   if (isLoadingExtras.value || extrasLoaded.value) return
   isLoadingExtras.value = true
@@ -744,6 +754,12 @@ onBeforeUnmount(() => {
           <Button variant="outline" size="sm" @click="toggleMapMode">
             Map: {{ useOfflineMap ? 'Offline' : 'Default' }}
           </Button>
+          <Button variant="outline" size="sm" @click="toggleFlatMap">
+            View: {{ useFlatMap ? 'Flat' : 'Globe' }}
+          </Button>
+          <Button variant="outline" size="sm" @click="toggleLighting">
+            Lighting: {{ useLighting ? 'On' : 'Off' }}
+          </Button>
           <Button variant="outline" size="sm" @click="toggleDark">
             {{ isDark ? 'Light mode' : 'Dark mode' }}
           </Button>
@@ -786,96 +802,107 @@ onBeforeUnmount(() => {
               </div>
             </CardHeader>
             <CardContent class="space-y-3 flex-1 overflow-y-auto">
-  
-              <div
-                v-for="trajectory in decoratedTrajectories"
-                :key="trajectory.id"
-                role="button"
-                tabindex="0"
-                class="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-2 transition"
-                :class="[
-                  listTone,
-                  selectedTrajectoryId === trajectory.id ? activeTone : '',
-                ]"
-                @click="selectedTrajectoryId = trajectory.id"
-                @keydown.enter.prevent="selectedTrajectoryId = trajectory.id"
-                @keydown.space.prevent="selectedTrajectoryId = trajectory.id"
-              >
-                <div class="flex items-center gap-3">
-                  <div
-                    class="flex h-9 w-9 items-center justify-center rounded-full"
-                    :class="
-                      isDark
-                        ? 'border border-slate-600 bg-slate-800 text-slate-100'
-                        : 'border border-slate-200 bg-white/80 text-slate-600'
-                    "
-                  >
-                    <component
-                      :is="getIcon(trajectory.type)"
-                      class="h-4 w-4"
-                      aria-hidden="true"
+              <template v-if="decoratedTrajectories.length">
+                <div
+                  v-for="trajectory in decoratedTrajectories"
+                  :key="trajectory.id"
+                  role="button"
+                  tabindex="0"
+                  class="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-2 transition"
+                  :class="[
+                    listTone,
+                    selectedTrajectoryId === trajectory.id ? activeTone : '',
+                  ]"
+                  @click="selectedTrajectoryId = trajectory.id"
+                  @keydown.enter.prevent="selectedTrajectoryId = trajectory.id"
+                  @keydown.space.prevent="selectedTrajectoryId = trajectory.id"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="flex h-9 w-9 items-center justify-center rounded-full"
+                      :class="
+                        isDark
+                          ? 'border border-slate-600 bg-slate-800 text-slate-100'
+                          : 'border border-slate-200 bg-white/80 text-slate-600'
+                      "
+                    >
+                      <component
+                        :is="getIcon(trajectory.type)"
+                        class="h-4 w-4"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <span
+                      class="h-2 w-12 rounded-full"
+                      :style="{ backgroundColor: trajectory.color || '#2563eb' }"
                     />
+                    <div>
+                      <p
+                        class="text-sm font-semibold"
+                        :class="isDark ? 'text-slate-100' : 'text-slate-900'"
+                      >
+                        {{ trajectory.name }}
+                      </p>
+                      <p class="text-xs text-slate-500">
+                        {{ waypointCount(trajectory) }} waypoints ·
+                        {{ trajectory.type || 'other' }}
+                      </p>
+                    </div>
                   </div>
                   <span
-                    class="h-2 w-12 rounded-full"
-                    :style="{ backgroundColor: trajectory.color || '#2563eb' }"
-                  />
-                  <div>
-                    <p
-                      class="text-sm font-semibold"
-                      :class="isDark ? 'text-slate-100' : 'text-slate-900'"
-                    >
-                      {{ trajectory.name }}
-                    </p>
-                    <p class="text-xs text-slate-500">
-                      {{ waypointCount(trajectory) }} waypoints ·
-                      {{ trajectory.type || 'other' }}
-                    </p>
-                  </div>
-                </div>
-                <span
-                  v-if="selectedTrajectoryId === trajectory.id"
-                  class="text-[10px] uppercase tracking-[0.2em] text-slate-500"
-                >
-                  Active
-                </span>
-                <div class="flex items-center gap-2">
-                  <Button
-                    v-if="pendingDeleteId !== trajectory.id"
-                    variant="ghost"
-                    size="icon-sm"
-                    class="text-slate-400 hover:text-red-500"
-                    @click.stop="deleteTrajectory(trajectory.id)"
-                    aria-label="Delete trajectory"
+                    v-if="selectedTrajectoryId === trajectory.id"
+                    class="text-[10px] uppercase tracking-[0.2em] text-slate-500"
                   >
-                    ×
-                  </Button>
-                  <div
-                    v-else
-                    class="flex items-center gap-1 text-[11px] uppercase tracking-[0.15em] text-slate-500"
-                  >
-                    <span>Confirm?</span>
+                    Active
+                  </span>
+                  <div class="flex items-center gap-2">
                     <Button
-                      variant="outline"
-                      size="icon-sm"
-                      class="text-green-600"
-                      @click.stop="deleteTrajectory(trajectory.id, true)"
-                      aria-label="Confirm delete"
-                    >
-                      ✓
-                    </Button>
-                    <Button
+                      v-if="pendingDeleteId !== trajectory.id"
                       variant="ghost"
                       size="icon-sm"
-                      class="text-slate-500 hover:text-slate-700"
-                      @click.stop="pendingDeleteId = ''"
-                      aria-label="Cancel delete"
+                      class="text-slate-400 hover:text-red-500"
+                      @click.stop="deleteTrajectory(trajectory.id)"
+                      aria-label="Delete trajectory"
                     >
-                      ✕
+                      ×
                     </Button>
+                    <div
+                      v-else
+                      class="flex items-center gap-1 text-[11px] uppercase tracking-[0.15em] text-slate-500"
+                    >
+                      <span>Confirm?</span>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        class="text-green-600"
+                        @click.stop="deleteTrajectory(trajectory.id, true)"
+                        aria-label="Confirm delete"
+                      >
+                        ✓
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        class="text-slate-500 hover:text-slate-700"
+                        @click.stop="pendingDeleteId = ''"
+                        aria-label="Cancel delete"
+                      >
+                        ✕
+                      </Button>
+                    </div>
                   </div>
                 </div>
+              </template>
+              <div
+                v-else
+                class="rounded-xl border border-dashed border-slate-200/80 bg-white/60 p-4 text-sm text-slate-600 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-slate-200"
+              >
+                <p class="font-semibold">No trajectories loaded.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  Upload a track or load samples to get started.
+                </p>
               </div>
+
               <div class="flex items-center gap-2 pt-2">
                 <Button
                   variant="outline"
@@ -948,6 +975,7 @@ onBeforeUnmount(() => {
                   variant="outline"
                   size="sm"
                   class="w-full text-red-600 hover:text-red-700"
+                  :disabled="!trajectories.length"
                   @click="clearTrajectories"
                 >
                   Clear all trajectories
@@ -971,6 +999,8 @@ onBeforeUnmount(() => {
             :trajectories="decoratedTrajectories"
             :selected-trajectory-id="selectedTrajectoryId"
             :use-offline-map="useOfflineMap"
+            :use-flat-map="useFlatMap"
+            :use-lighting="useLighting"
             @coordinate-selected="handleCoordinateSelected"
           />
           <div
