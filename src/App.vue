@@ -26,332 +26,9 @@ import {
 } from 'lucide-vue-next'
 import CompactGauge from './components/CompactGauge.vue'
 
-const trajectories = ref([
-  {
-    id: 'atlantic-hop',
-    name: 'Atlantic hop',
-    type: 'air',
-    positions: [
-      { lat: 40.6413, lon: -73.7781, altitude: 0, time: 0 },
-      { lat: 46.5, lon: -45, altitude: 11000, time: 600 },
-      { lat: 51.47, lon: -0.4543, altitude: 0, time: 1200 },
-    ],
-    waypoints: [{ lat: 46.5, lon: -45, altitude: 11000 }],
-  },
-  {
-    id: 'pacific-arc',
-    name: 'Pacific arc',
-    type: 'air',
-    positions: [
-      { lat: 37.6189, lon: -122.375, altitude: 0, time: 0 },
-      { lat: 45.5, lon: -160, altitude: 12500, time: 900 },
-      { lat: 42.2, lon: 170, altitude: 12500, time: 1800 },
-      { lat: 35.5494, lon: 139.7798, altitude: 0, time: 2700 },
-    ],
-    waypoints: [
-      { lat: 45.5, lon: -160, altitude: 12500 },
-      { lat: 42.2, lon: 170, altitude: 12500 },
-    ],
-  },
-  {
-    id: 'andes-traverse',
-    name: 'Andes traverse',
-    type: 'air',
-    positions: [
-      { lat: -33.4489, lon: -70.6693, altitude: 0, time: 0 },
-      { lat: -20.5, lon: -68.3, altitude: 9000, time: 600 },
-      { lat: -13.5319, lon: -71.9675, altitude: 4500, time: 1200 },
-      { lat: -3.99, lon: -79.2, altitude: 9000, time: 1800 },
-      { lat: 6.207, lon: -75.575, altitude: 800, time: 2400 },
-    ],
-    waypoints: [
-      { lat: -20.5, lon: -68.3, altitude: 9000 },
-      { lat: -13.5319, lon: -71.9675, altitude: 4500 },
-      { lat: -3.99, lon: -79.2, altitude: 9000 },
-    ],
-  },
-  {
-    id: 'arctic-bridge',
-    name: 'Arctic bridge',
-    type: 'air',
-    positions: [
-      { lat: 64.1265, lon: -21.8174, altitude: 0, time: 0 },
-      { lat: 75, lon: -30, altitude: 10500, time: 900 },
-      { lat: 68.707, lon: 33.55, altitude: 0, time: 1800 },
-    ],
-    waypoints: [{ lat: 75, lon: -30, altitude: 10500 }],
-  },
-  {
-    id: 'med-corridor',
-    name: 'Mediterranean corridor',
-    type: 'naval',
-    positions: [
-      { lat: 36.8987, lon: 30.7133, altitude: 0, time: 0 },
-      { lat: 38.5, lon: 15, altitude: 9500, time: 600 },
-      { lat: 41.3851, lon: 2.1734, altitude: 0, time: 1200 },
-    ],
-    waypoints: [{ lat: 38.5, lon: 15, altitude: 9500 }],
-  },
-  {
-    id: 'sahara-link',
-    name: 'Sahara link',
-    type: 'ground',
-    positions: [
-      { lat: 31.6295, lon: -7.9811, altitude: 0, time: 0 },
-      { lat: 20.5, lon: 13.0, altitude: 10500, time: 600 },
-      { lat: 12.9716, lon: 77.5946, altitude: 0, time: 1200 },
-    ],
-    waypoints: [{ lat: 20.5, lon: 13.0, altitude: 10500 }],
-  },
-  {
-    id: 'austral-loop',
-    name: 'Austral loop',
-    type: 'air',
-    positions: [
-      { lat: -37.8136, lon: 144.9631, altitude: 0, time: 0 },
-      { lat: -46, lon: 160, altitude: 11000, time: 600 },
-      { lat: -36.8485, lon: 174.7633, altitude: 0, time: 1200 },
-    ],
-    waypoints: [{ lat: -46, lon: 160, altitude: 11000 }],
-  },
-  {
-    id: 'baltic-run',
-    name: 'Baltic run',
-    type: 'naval',
-    positions: [
-      { lat: 59.437, lon: 24.7536, altitude: 0, time: 0 },
-      { lat: 57.7, lon: 19.0, altitude: 8000, time: 600 },
-      { lat: 55.6761, lon: 12.5683, altitude: 0, time: 1200 },
-    ],
-    waypoints: [{ lat: 57.7, lon: 19.0, altitude: 8000 }],
-  },
-  {
-    id: 'polar-sweep',
-    name: 'Polar sweep',
-    type: 'air',
-    positions: [
-      { lat: 64.2008, lon: -149.4937, altitude: 0 },
-      { lat: 70.0, lon: -50.0, altitude: 11000 },
-      { lat: 78.2232, lon: 15.6469, altitude: 0 },
-    ],
-    waypoints: [{ lat: 70.0, lon: -50.0, altitude: 11000 }],
-  },
-  {
-    id: 'southern-arc',
-    name: 'Southern arc',
-    type: 'air',
-    positions: [
-      { lat: -12.4634, lon: 130.8456, altitude: 0 },
-      { lat: -25.0, lon: 140.0, altitude: 10500 },
-      { lat: -33.8688, lon: 151.2093, altitude: 0 },
-    ],
-    waypoints: [{ lat: -25.0, lon: 140.0, altitude: 10500 }],
-  },
-  {
-    id: 'andean-ridge',
-    name: 'Andean ridge',
-    type: 'ground',
-    positions: [
-      { lat: -20.1619, lon: -70.1322, altitude: 0 },
-      { lat: -15.5, lon: -71.0, altitude: 7500 },
-      { lat: -12.0464, lon: -77.0428, altitude: 0 },
-    ],
-    waypoints: [{ lat: -15.5, lon: -71.0, altitude: 7500 }],
-  },
-  {
-    id: 'balkan-bridge',
-    name: 'Balkan bridge',
-    type: 'air',
-    positions: [
-      { lat: 45.815, lon: 15.9819, altitude: 0 },
-      { lat: 43.8563, lon: 18.4131, altitude: 9000 },
-      { lat: 41.9973, lon: 21.428, altitude: 0 },
-    ],
-    waypoints: [{ lat: 43.8563, lon: 18.4131, altitude: 9000 }],
-  },
-  {
-    id: 'caribbean-thread',
-    name: 'Caribbean thread',
-    type: 'naval',
-    positions: [
-      { lat: 18.4655, lon: -66.1057, altitude: 0 },
-      { lat: 16.3064, lon: -61.084, altitude: 0 },
-      { lat: 14.6415, lon: -61.0242, altitude: 0 },
-    ],
-    waypoints: [{ lat: 16.3064, lon: -61.084, altitude: 0 }],
-  },
-  {
-    id: 'north-sea-loop',
-    name: 'North Sea loop',
-    type: 'naval',
-    positions: [
-      { lat: 53.4808, lon: -2.2426, altitude: 0 },
-      { lat: 55.95, lon: 3.0, altitude: 0 },
-      { lat: 57.7089, lon: 11.9746, altitude: 0 },
-    ],
-    waypoints: [{ lat: 55.95, lon: 3.0, altitude: 0 }],
-  },
-  {
-    id: 'steppe-corridor',
-    name: 'Steppe corridor',
-    type: 'ground',
-    positions: [
-      { lat: 50.4501, lon: 30.5234, altitude: 0 },
-      { lat: 48.708, lon: 44.513, altitude: 0 },
-      { lat: 43.2389, lon: 76.8897, altitude: 0 },
-    ],
-    waypoints: [{ lat: 48.708, lon: 44.513, altitude: 0 }],
-  },
-  {
-    id: 'sundarbans-sprint',
-    name: 'Sundarbans sprint',
-    type: 'ground',
-    positions: [
-      { lat: 22.5726, lon: 88.3639, altitude: 0 },
-      { lat: 21.5, lon: 90.0, altitude: 0 },
-      { lat: 23.8103, lon: 90.4125, altitude: 0 },
-    ],
-    waypoints: [{ lat: 21.5, lon: 90.0, altitude: 0 }],
-  },
-  {
-    id: 'island-chain',
-    name: 'Island chain',
-    type: 'air',
-    positions: [
-      { lat: 25.7617, lon: -80.1918, altitude: 0 },
-      { lat: 19.8968, lon: -155.5828, altitude: 11500 },
-      { lat: 21.3069, lon: -157.8583, altitude: 0 },
-    ],
-    waypoints: [{ lat: 19.8968, lon: -155.5828, altitude: 11500 }],
-  },
-  {
-    id: 'saharan-band',
-    name: 'Saharan band',
-    type: 'air',
-    positions: [
-      { lat: 14.7167, lon: -17.4677, altitude: 0 },
-      { lat: 19.0, lon: 13.0, altitude: 11500 },
-      { lat: 30.0444, lon: 31.2357, altitude: 0 },
-    ],
-    waypoints: [{ lat: 19.0, lon: 13.0, altitude: 11500 }],
-  },
-  {
-    id: 'black-sea-arc',
-    name: 'Black Sea arc',
-    type: 'naval',
-    positions: [
-      { lat: 41.0082, lon: 28.9784, altitude: 0 },
-      { lat: 42.6983, lon: 27.2167, altitude: 0 },
-      { lat: 44.4328, lon: 26.1043, altitude: 0 },
-      { lat: 45.4642, lon: 28.777, altitude: 10000 },
-    ],
-    waypoints: [
-      { lat: 42.6983, lon: 27.2167, altitude: 0 },
-      { lat: 44.4328, lon: 26.1043, altitude: 0 },
-    ],
-  },
-  {
-    id: 'pacific-hinge',
-    name: 'Pacific hinge',
-    type: 'air',
-    positions: [
-      { lat: 47.6062, lon: -122.3321, altitude: 0 },
-      { lat: 55.0, lon: 170.0, altitude: 12000 },
-      { lat: 35.6762, lon: 139.6503, altitude: 0 },
-    ],
-    waypoints: [{ lat: 55.0, lon: 170.0, altitude: 12000 }],
-  },
-  {
-    id: 'andes-to-atlantic',
-    name: 'Andes to Atlantic',
-    type: 'ground',
-    positions: [
-      { lat: -34.6037, lon: -58.3816, altitude: 0 },
-      { lat: -27.0, lon: -48.6, altitude: 0 },
-      { lat: -22.9068, lon: -43.1729, altitude: 0 },
-    ],
-    waypoints: [{ lat: -27.0, lon: -48.6, altitude: 0 }],
-  },
-  {
-    id: 'pan-arabian',
-    name: 'Pan Arabian',
-    type: 'ground',
-    positions: [
-      { lat: 24.7136, lon: 46.6753, altitude: 0 },
-      { lat: 29.3759, lon: 47.9774, altitude: 0 },
-      { lat: 33.3152, lon: 44.3661, altitude: 0 },
-    ],
-    waypoints: [{ lat: 29.3759, lon: 47.9774, altitude: 0 }],
-  },
-  {
-    id: 'nordic-dash',
-    name: 'Nordic dash',
-    type: 'air',
-    positions: [
-      { lat: 60.1699, lon: 24.9384, altitude: 0 },
-      { lat: 64.1265, lon: -21.8174, altitude: 10500 },
-      { lat: 59.9139, lon: 10.7522, altitude: 0 },
-    ],
-    waypoints: [{ lat: 64.1265, lon: -21.8174, altitude: 10500 }],
-  },
-  {
-    id: 'baltic-thread',
-    name: 'Baltic thread',
-    type: 'naval',
-    positions: [
-      { lat: 59.3293, lon: 18.0686, altitude: 0 },
-      { lat: 58.3776, lon: 24.7474, altitude: 0 },
-      { lat: 59.9133, lon: 10.739, altitude: 0 },
-    ],
-    waypoints: [{ lat: 58.3776, lon: 24.7474, altitude: 0 }],
-  },
-  {
-    id: 'red-sea-run',
-    name: 'Red Sea run',
-    type: 'naval',
-    positions: [
-      { lat: 29.5521, lon: 34.9519, altitude: 0 },
-      { lat: 25.4, lon: 36.0, altitude: 0 },
-      { lat: 21.4858, lon: 39.1925, altitude: 0 },
-    ],
-    waypoints: [{ lat: 25.4, lon: 36.0, altitude: 0 }],
-  },
-  {
-    id: 'great-plains-pass',
-    name: 'Great Plains pass',
-    type: 'ground',
-    positions: [
-      { lat: 39.7392, lon: -104.9903, altitude: 0 },
-      { lat: 41.2572, lon: -95.9951, altitude: 0 },
-      { lat: 44.9778, lon: -93.265, altitude: 0 },
-    ],
-    waypoints: [{ lat: 41.2572, lon: -95.9951, altitude: 0 }],
-  },
-  {
-    id: 'maritime-seam',
-    name: 'Maritime seam',
-    type: 'naval',
-    positions: [
-      { lat: 1.3521, lon: 103.8198, altitude: 0 },
-      { lat: 5.0, lon: 112.0, altitude: 0 },
-      { lat: 7.9519, lon: 98.3381, altitude: 0 },
-    ],
-    waypoints: [{ lat: 5.0, lon: 112.0, altitude: 0 }],
-  },
-  {
-    id: 'pacific-ridge',
-    name: 'Pacific ridge',
-    type: 'air',
-    positions: [
-      { lat: 34.0522, lon: -118.2437, altitude: 0 },
-      { lat: 45.0, lon: -150.0, altitude: 12500 },
-      { lat: 35.6895, lon: 139.6917, altitude: 0 },
-    ],
-    waypoints: [{ lat: 45.0, lon: -150.0, altitude: 12500 }],
-  },
-])
+const trajectories = ref([])
 
-const selectedTrajectoryId = ref(trajectories.value[0].id)
+const selectedTrajectoryId = ref('')
 const selectedCoordinate = ref(null)
 const globeRef = ref(null)
 const coordinateOverlayVisible = ref(false)
@@ -360,6 +37,8 @@ const useOfflineMap = ref(false)
 const useFlatMap = ref(false)
 const useLighting = ref(true)
 const showBoundaries = ref(false)
+const isInitialLoading = ref(true)
+const initialLoadError = ref('')
 const isLoadingExtras = ref(false)
 const extrasLoaded = ref(false)
 const loadError = ref('')
@@ -536,6 +215,7 @@ const activeTone = computed(() =>
 
 onMounted(() => {
   document.documentElement.classList.toggle('dark', isDark.value)
+  loadInitialTrajectories()
 })
 
 watch(
@@ -573,6 +253,22 @@ const toggleLighting = () => {
 
 const toggleBoundaries = () => {
   showBoundaries.value = !showBoundaries.value
+}
+
+const loadInitialTrajectories = async () => {
+  isInitialLoading.value = true
+  initialLoadError.value = ''
+  try {
+    await loadTrajectoriesFrom('/data/trajectories.json')
+    if (!selectedTrajectoryId.value && trajectories.value.length) {
+      selectedTrajectoryId.value = trajectories.value[0].id
+    }
+  } catch (err) {
+    console.error(err)
+    initialLoadError.value = 'Failed to load initial trajectories.'
+  } finally {
+    isInitialLoading.value = false
+  }
 }
 
 const loadMoreTrajectories = async () => {
@@ -820,7 +516,14 @@ onBeforeUnmount(() => {
               </div>
             </CardHeader>
             <CardContent class="space-y-3 flex-1 overflow-y-auto">
-              <template v-if="decoratedTrajectories.length">
+              <template v-if="isInitialLoading">
+                <div
+                  class="rounded-xl border border-slate-200/80 bg-white/60 p-4 text-sm text-slate-600 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-slate-200"
+                >
+                  Loading trajectories…
+                </div>
+              </template>
+              <template v-else-if="decoratedTrajectories.length">
                 <div
                   v-for="trajectory in decoratedTrajectories"
                   :key="trajectory.id"
@@ -960,6 +663,9 @@ onBeforeUnmount(() => {
               </p>
               <p v-if="uploadSuccess" class="text-xs text-green-600">
                 {{ uploadSuccess }}
+              </p>
+              <p v-if="initialLoadError" class="text-xs text-red-600">
+                {{ initialLoadError }}
               </p>
               <details class="pt-3 text-xs text-slate-700 dark:text-slate-200">
                 <summary class="cursor-pointer select-none text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
