@@ -17,6 +17,12 @@ import {
   Satellite,
   Navigation,
   Circle,
+  Map,
+  Globe2,
+  SunMedium,
+  SunMoon,
+  RefreshCcw,
+  MapPin,
 } from 'lucide-vue-next'
 import CompactGauge from './components/CompactGauge.vue'
 
@@ -353,6 +359,7 @@ let overlayTimer = null
 const useOfflineMap = ref(false)
 const useFlatMap = ref(false)
 const useLighting = ref(true)
+const showBoundaries = ref(false)
 const isLoadingExtras = ref(false)
 const extrasLoaded = ref(false)
 const loadError = ref('')
@@ -564,6 +571,10 @@ const toggleLighting = () => {
   useLighting.value = !useLighting.value
 }
 
+const toggleBoundaries = () => {
+  showBoundaries.value = !showBoundaries.value
+}
+
 const loadMoreTrajectories = async () => {
   if (isLoadingExtras.value || extrasLoaded.value) return
   isLoadingExtras.value = true
@@ -689,7 +700,7 @@ const convertTxtToTrajectory = (text, filename) => {
 
   const positions = dataLines.map((line) => {
     const cols = line.trim().split(/\s+/).map(Number)
-    const [, x, y, z] = cols
+    const [time, x, y, z] = cols
     const cartesian = new Cesium.Cartesian3(
       x * FEET_TO_METERS,
       y * FEET_TO_METERS,
@@ -700,6 +711,7 @@ const convertTxtToTrajectory = (text, filename) => {
       lat: +Cesium.Math.toDegrees(carto.latitude).toFixed(6),
       lon: +Cesium.Math.toDegrees(carto.longitude).toFixed(6),
       altitude: Math.round(carto.height),
+      time: time,
     }
   })
 
@@ -752,18 +764,24 @@ onBeforeUnmount(() => {
         </div>
         <div class="flex items-center gap-2">
           <Button variant="outline" size="sm" @click="toggleMapMode">
+            <Map class="mr-2 h-4 w-4" aria-hidden="true" />
             Map: {{ useOfflineMap ? 'Offline' : 'Default' }}
           </Button>
           <Button variant="outline" size="sm" @click="toggleFlatMap">
+            <Globe2 class="mr-2 h-4 w-4" aria-hidden="true" />
             View: {{ useFlatMap ? 'Flat' : 'Globe' }}
           </Button>
+
           <Button variant="outline" size="sm" @click="toggleLighting">
+            <SunMedium class="mr-2 h-4 w-4" aria-hidden="true" />
             Lighting: {{ useLighting ? 'On' : 'Off' }}
           </Button>
           <Button variant="outline" size="sm" @click="toggleDark">
+            <SunMoon class="mr-2 h-4 w-4" aria-hidden="true" />
             {{ isDark ? 'Light mode' : 'Dark mode' }}
           </Button>
           <Button variant="outline" size="sm" @click="resetCamera">
+            <RefreshCcw class="mr-2 h-4 w-4" aria-hidden="true" />
             Reset view
           </Button>
         </div>
@@ -1001,6 +1019,7 @@ onBeforeUnmount(() => {
             :use-offline-map="useOfflineMap"
             :use-flat-map="useFlatMap"
             :use-lighting="useLighting"
+            :show-boundaries="showBoundaries"
             @coordinate-selected="handleCoordinateSelected"
           />
           <div
